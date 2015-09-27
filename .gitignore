@@ -1,0 +1,5 @@
+/makePluralData
+/pluralData.js
+/polyfill*.js
+node_modules
+.*
