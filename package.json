@@ -1,5 +1,5 @@
 {
-  "name": "IntlPluralRules",
+  "name": "intl-pluralrules",
   "version": "0.1.0",
   "description": "Intl.PluralRules polyfill",
   "keywords": [
@@ -17,20 +17,12 @@
     "url": "https://github.com/eemeli/IntlPluralRules.git"
   },
   "bugs": {
-    "url": "https://github.com/eemeli/make-plural.js/issues"
+    "url": "https://github.com/eemeli/IntlPluralRules/issues"
   },
   "files": [
     "polyfill.*"
   ],
   "main": "polyfill",
-  "files": [
-    "lib/messageformat.js",
-    "lib/messageformat-parser.js",
-    "bin/messageformat.js",
-    "example",
-    "LICENSE",
-    "README.md"
-  ],
   "devDependencies": {
     "babel": "*",
     "babel-eslint": "*",
