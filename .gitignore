@@ -1,5 +1,5 @@
-/makePluralData
-/pluralData.js
-/polyfill*.js
-node_modules
 .*
+node_modules
+package-lock.json
+/plural-rules.js
+/polyfill.js
