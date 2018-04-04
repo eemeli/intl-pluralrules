@@ -47,32 +47,32 @@ function resolveLocale(availableLocales, requestedLocales) {
     return findLocale(availableLocales, defaultLocale());
 }
 
-function getStyle({ style }) {
-    if (!style) return 'cardinal';
-    if (['cardinal', 'ordinal'].indexOf(style) < 0) {
-        throw new RangeError('Not a valid plural syle: ' + JSON.stringify(style));
+function getType({ type }) {
+    if (!type) return 'cardinal';
+    if (['cardinal', 'ordinal'].indexOf(type) < 0) {
+        throw new RangeError('Not a valid plural type: ' + JSON.stringify(type));
     }
-    return style;
+    return type;
 }
 
 export default class PluralRules {
     constructor(locales, options = {}) {
         // ignores options.localeMatcher
         const requestedLocales = canonicalizeLocaleList(locales);
-        this.style = getStyle(options);
-        this.locale = resolveLocale(pluralData[this.style], requestedLocales);
-        this.select = pluralData[this.style][this.locale];
+        this.type = getType(options);
+        this.locale = resolveLocale(pluralData[this.type], requestedLocales);
+        this.select = pluralData[this.type][this.locale];
     }
 
     static supportedLocalesOf(locales, options = {}) {
         // ignores options.localeMatcher
         const requestedLocales = canonicalizeLocaleList(locales);
-        const style = getStyle(options);
-        return requestedLocales.filter(locale => findLocale(pluralData[style], locale));
+        const type = getType(options);
+        return requestedLocales.filter(locale => findLocale(pluralData[type], locale));
     }
 
     resolvedOptions() {
-        return { locale: this.locale, style: this.style };
+        return { locale: this.locale, type: this.type };
     }
 }
 
