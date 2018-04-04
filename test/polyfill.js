@@ -43,18 +43,11 @@ describe('Intl.PluralRules polyfill', function(){
             expect(p.locale).to.equal('fi');
             expect(p.select).to.be.a('function');
         });
-        it('should choose a locale correctly from multiple choices: cardinals', function(){
+        it('should choose a locale correctly from multiple choices', function(){
             var p = new Intl.PluralRules(['i-klingon', 'ak', 'en']);
             expect(p).to.be.an('object');
             expect(p.type).to.equal('cardinal');
-            expect(p.locale).to.equal('ak');  // Unicode CLDR v25..28 includes cardinal rules for Akan
-            expect(p.select).to.be.a('function');
-        });
-        it('should choose a locale correctly from multiple choices: ordinals', function(){
-            var p = new Intl.PluralRules(['i-klingon', 'ak', 'en'], { type: 'ordinal' });
-            expect(p).to.be.an('object');
-            expect(p.type).to.equal('ordinal');
-            expect(p.locale).to.equal('en');  // Unicode CLDR v25..28 does not include ordinal rules for Akan
+            expect(p.locale).to.equal('ak');
             expect(p.select).to.be.a('function');
         });
         it('should complain about invalid types', function(){
@@ -73,8 +66,9 @@ describe('Intl.PluralRules polyfill', function(){
         it('should return expected values', function(){
             var p = new Intl.PluralRules('fi-FI'), res = p.resolvedOptions();
             expect(res).to.be.an('object');
-            expect(res).to.only.have.keys('locale', 'type');
+            expect(res).to.only.have.keys('locale', 'pluralCategory', 'type');
             expect(res.locale).to.equal('fi');
+            expect(res.pluralCategory).to.eql(['one', 'other']);
             expect(res.type).to.equal('cardinal');
         });
     });
