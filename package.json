@@ -11,8 +11,8 @@
   ],
   "author": "Eemeli Aro <eemeli@gmail.com>",
   "license": "ISC",
-  "homepage": "https://github.com/eemeli/IntlPluralRules#readme",
-  "repository": "eemeli/IntlPluralRules",
+  "homepage": "https://github.com/eemeli/intl-pluralrules#readme",
+  "repository": "eemeli/intl-pluralrules",
   "files": [
     "plural-rules.js",
     "polyfill.js"
