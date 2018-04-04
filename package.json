@@ -11,53 +11,26 @@
   ],
   "author": "Eemeli Aro <eemeli@gmail.com>",
   "license": "ISC",
-  "homepage": "https://github.com/eemeli/IntlPluralRules",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/eemeli/IntlPluralRules.git"
-  },
-  "bugs": {
-    "url": "https://github.com/eemeli/IntlPluralRules/issues"
-  },
+  "homepage": "https://github.com/eemeli/IntlPluralRules#readme",
+  "repository": "eemeli/IntlPluralRules",
   "files": [
-    "polyfill.*"
+    "plural-rules.js",
+    "polyfill.js"
   ],
-  "main": "polyfill",
-  "devDependencies": {
-    "babel": "*",
-    "babel-eslint": "*",
-    "babelify": "*",
-    "browserify": "*",
-    "eslint": "*",
-    "expect.js": "*",
-    "http-server": "*",
-    "make-plural": "^3.0.1",
-    "mocha": "*",
-    "uglify-js": "*"
+  "main": "polyfill.js",
+  "babel": {
+    "presets": ["env"]
   },
-  "eslintConfig": {
-    "parser": "babel-eslint",
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "rules": {
-      "curly": [
-        2,
-        "multi-line"
-      ],
-      "eqeqeq": [
-        1,
-        "smart"
-      ],
-      "quotes": [
-        1,
-        "single",
-        "avoid-escape"
-      ]
-    }
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "expect.js": "^0.3.1",
+    "make-plural": "^4.1.1",
+    "mocha": "^5.0.5"
   },
   "scripts": {
-    "test": "make test"
+    "build": "babel -d . src/",
+    "prepublishOnly": "npm test",
+    "test": " npm run build && mocha test/polyfill.js"
   }
 }
