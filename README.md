@@ -16,7 +16,7 @@ To use the polyfill, just import it to make sure that `Intl.PluralRules` is
 available in your environment:
 
 ```js
-import 'intl-polyfill'
+import 'intl-pluralrules'
 ```
 
 If `Intl.PluralRules` already exists, the polyfill will not be loaded. The
