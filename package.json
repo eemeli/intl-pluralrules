@@ -1,6 +1,6 @@
 {
   "name": "intl-pluralrules",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Intl.PluralRules polyfill",
   "keywords": [
     "unicode",
@@ -19,7 +19,9 @@
   ],
   "main": "polyfill.js",
   "babel": {
-    "presets": ["env"]
+    "presets": [
+      "env"
+    ]
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
