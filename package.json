@@ -23,6 +23,10 @@
       "env"
     ]
   },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
   "dependencies": {
     "make-plural": "^4.1.1"
   },
