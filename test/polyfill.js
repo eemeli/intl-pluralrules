@@ -73,6 +73,7 @@ describe('Intl.PluralRules polyfill', function(){
             var p = new PluralRules('fi-FI'), res = p.resolvedOptions();
             expect(res).to.be.an('object');
             expect(res.locale).to.match(/^fi\b/);
+            expect(res.minimumIntegerDigits).to.equal(1);
             expect(res.minimumFractionDigits).to.equal(0);
             expect(res.maximumFractionDigits).to.equal(3);
             expect(res.pluralCategories).to.eql(['one', 'other']);

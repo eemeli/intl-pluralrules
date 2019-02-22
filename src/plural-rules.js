@@ -66,20 +66,16 @@ export default class PluralRules {
         return canonicalizeLocaleList(locales).filter(findLocale)
     }
 
-    constructor(locales, { localeMatcher, maximumFractionDigits, minimumFractionDigits, type } = {}) {
+    constructor(locales, { localeMatcher, minimumIntegerDigits, minimumFractionDigits, maximumFractionDigits, type } = {}) {
         handleLocaleMatcher(localeMatcher)
         this._locale = resolveLocale(locales)
         this._type = getType(type)
         if (typeof Intl === 'object' && Intl.NumberFormat) {
-            this._nf = new Intl.NumberFormat(this._locale, { maximumFractionDigits, minimumFractionDigits })
+            this._nf = new Intl.NumberFormat(this._locale, { minimumIntegerDigits, minimumFractionDigits, maximumFractionDigits })
         } else {
+            this._minID = typeof minimumIntegerDigits === 'number' ? minimumIntegerDigits : 1
             this._minFD = typeof minimumFractionDigits === 'number' ? minimumFractionDigits : 0
             this._maxFD = typeof maximumFractionDigits === 'number' ? maximumFractionDigits : Math.max(this._minFD, 3)
-            this._format = n => (
-                this._minFD > 0 ? n.toFixed(this._minFD)
-                : this._maxFD === 0 ? n.toFixed(0)
-                : n
-            )
         }
     }
 
@@ -87,8 +83,9 @@ export default class PluralRules {
         const opt = this._nf && this._nf.resolvedOptions()
         return {
             locale: this._locale,
-            maximumFractionDigits: opt ? opt.maximumFractionDigits : this._maxFD,
+            minimumIntegerDigits: opt ? opt.minimumIntegerDigits : this._minID,
             minimumFractionDigits: opt ? opt.minimumFractionDigits : this._minFD,
+            maximumFractionDigits: opt ? opt.maximumFractionDigits : this._maxFD,
             pluralCategories: pluralCategories[this._locale][this._type],
             type: this._type
         }
@@ -97,7 +94,10 @@ export default class PluralRules {
     select(number) {
         if (typeof number !== 'number') number = Number(number)
         if (!isFinite(number)) return 'other'
-        const fmt = this._nf ? this._nf.format(number) : this._format(number)
+        const fmt = this._nf ? this._nf.format(number)
+            : this._minFD > 0 ? number.toFixed(this._minFD)
+            : this._maxFD === 0 ? number.toFixed(0)
+            : String(number)
         return pluralRules[this._locale](fmt, this._type === 'ordinal')
     }
 }
