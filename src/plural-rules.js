@@ -84,59 +84,72 @@ export default class PluralRules {
     return canonicalizeLocaleList(locales).filter(findLocale)
   }
 
-  constructor(
-    locales,
-    {
-      localeMatcher,
-      minimumIntegerDigits,
-      minimumFractionDigits,
-      maximumFractionDigits,
-      type
-    } = {}
-  ) {
-    handleLocaleMatcher(localeMatcher)
+  constructor(locales, opt = {}) {
+    handleLocaleMatcher(opt.localeMatcher)
     this._locale = resolveLocale(locales)
-    this._type = getType(type)
+    this._type = getType(opt.type)
     if (typeof Intl === 'object' && Intl.NumberFormat) {
-      this._nf = new Intl.NumberFormat(this._locale, {
-        minimumIntegerDigits,
-        minimumFractionDigits,
-        maximumFractionDigits
-      })
+      this._nf = new Intl.NumberFormat(this._locale, opt)
     } else {
-      this._minID =
-        typeof minimumIntegerDigits === 'number' ? minimumIntegerDigits : 1
-      this._minFD =
-        typeof minimumFractionDigits === 'number' ? minimumFractionDigits : 0
-      this._maxFD =
-        typeof maximumFractionDigits === 'number'
-          ? maximumFractionDigits
-          : Math.max(this._minFD, 3)
+      const {
+        minimumIntegerDigits: minID,
+        minimumFractionDigits: minFD,
+        maximumFractionDigits: maxFD,
+        minimumSignificantDigits: minSD,
+        maximumSignificantDigits: maxSD
+      } = opt
+      this._minID = typeof minID === 'number' ? minID : 1
+      this._minFD = typeof minFD === 'number' ? minFD : 0
+      this._maxFD = typeof maxFD === 'number' ? maxFD : Math.max(this._minFD, 3)
+      if (typeof minSD === 'number' || typeof maxSD === 'number') {
+        this._minSD = typeof minSD === 'number' ? minSD : 1
+        this._maxSD = typeof maxSD === 'number' ? maxSD : 21
+      }
     }
   }
 
   resolvedOptions() {
-    const opt = this._nf && this._nf.resolvedOptions()
-    return {
+    const nfOpt = this._nf && this._nf.resolvedOptions()
+    const opt = {
       locale: this._locale,
-      minimumIntegerDigits: opt ? opt.minimumIntegerDigits : this._minID,
-      minimumFractionDigits: opt ? opt.minimumFractionDigits : this._minFD,
-      maximumFractionDigits: opt ? opt.maximumFractionDigits : this._maxFD,
+      minimumIntegerDigits: nfOpt ? nfOpt.minimumIntegerDigits : this._minID,
+      minimumFractionDigits: nfOpt ? nfOpt.minimumFractionDigits : this._minFD,
+      maximumFractionDigits: nfOpt ? nfOpt.maximumFractionDigits : this._maxFD,
       pluralCategories: pluralCategories[this._locale][this._type],
       type: this._type
     }
+    if (nfOpt && typeof nfOpt.minimumSignificantDigits === 'number') {
+      opt.minimumSignificantDigits = nfOpt.minimumSignificantDigits
+      opt.maximumSignificantDigits = nfOpt.maximumSignificantDigits
+    } else if (typeof this._minSD === 'number') {
+      opt.minimumSignificantDigits = this._minSD
+      opt.maximumSignificantDigits = this._maxSD
+    }
+    return opt
+  }
+
+  _format(n) {
+      if (this._nf) return this._nf.format(n)
+      if (this._minSD) {
+          const raw = String(n)
+          let prec = 0
+          for (let i = 0; i < raw.length; ++i) {
+              const c = raw[i]
+              if (c >= '0' && c <= '9') ++prec
+          }
+          if (prec < this._minSD) return n.toPrecision(this._minSD)
+          if (prec > this._maxSD) return n.toPrecision(this._maxSD)
+          return raw
+      }
+      if (this._minFD > 0) return n.toFixed(this._minFD)
+      if (this._maxFD === 0) return n.toFixed(0)
+      return String(n)
   }
 
   select(number) {
     if (typeof number !== 'number') number = Number(number)
     if (!isFinite(number)) return 'other'
-    const fmt = this._nf
-      ? this._nf.format(number)
-      : this._minFD > 0
-      ? number.toFixed(this._minFD)
-      : this._maxFD === 0
-      ? number.toFixed(0)
-      : String(number)
+    const fmt = this._format(number)
     return pluralRules[this._locale](fmt, this._type === 'ordinal')
   }
 }
