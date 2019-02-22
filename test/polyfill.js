@@ -1,3 +1,6 @@
+var expect = require('expect.js');
+require('../polyfill');
+
 describe('Intl.PluralRules polyfill', function(){
     it('should exist', function(){
         expect(Intl.PluralRules).to.be.a('function');
