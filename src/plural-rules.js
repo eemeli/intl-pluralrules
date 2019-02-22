@@ -75,7 +75,7 @@ export default class PluralRules {
     resolvedOptions() {
         return {
             locale: this.locale,
-            pluralCategory: pluralCategories[this.locale][this.type],
+            pluralCategories: pluralCategories[this.locale][this.type],
             type: this.type
         }
     }

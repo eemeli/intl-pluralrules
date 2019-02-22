@@ -68,7 +68,7 @@ describe('Intl.PluralRules polyfill', function(){
             expect(res).to.be.an('object');
             expect(res).to.only.have.keys('locale', 'pluralCategory', 'type');
             expect(res.locale).to.equal('fi');
-            expect(res.pluralCategory).to.eql(['one', 'other']);
+            expect(res.pluralCategories).to.eql(['one', 'other']);
             expect(res.type).to.equal('cardinal');
         });
     });
