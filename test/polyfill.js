@@ -73,6 +73,8 @@ describe('Intl.PluralRules polyfill', function(){
             var p = new PluralRules('fi-FI'), res = p.resolvedOptions();
             expect(res).to.be.an('object');
             expect(res.locale).to.match(/^fi\b/);
+            expect(res.minimumFractionDigits).to.equal(0);
+            expect(res.maximumFractionDigits).to.equal(3);
             expect(res.pluralCategories).to.eql(['one', 'other']);
             expect(res.type).to.equal('cardinal');
         });
@@ -87,9 +89,9 @@ describe('Intl.PluralRules polyfill', function(){
         it('should work for English cardinals', function(){
             var p = new PluralRules('en', { type: 'cardinal' });
             expect(p.select(1)).to.equal('one');
-            //expect(p.select('1.0')).to.equal('other');
+            expect(p.select('1.0')).to.equal('one');
             expect(p.select(2)).to.equal('other');
-            //expect(p.select('-2.0')).to.equal('other');
+            expect(p.select('-2.0')).to.equal('other');
         });
         it('should work for English ordinals', function(){
             var p = new PluralRules('en', { type: 'ordinal' });
@@ -97,6 +99,20 @@ describe('Intl.PluralRules polyfill', function(){
             expect(p.select('22')).to.equal('two');
             expect(p.select('3.0')).to.equal('few');
             expect(p.select(11)).to.equal('other');
+        });
+        it('should work with minimumFractionDigits: 1', function(){
+            var p = new PluralRules('en', { minimumFractionDigits: 1 });
+            expect(p.select(1)).to.equal('other');
+            expect(p.select('1.0')).to.equal('other');
+            expect(p.select(2)).to.equal('other');
+            expect(p.select('-2.0')).to.equal('other');
+        });
+        it('should work with maximumFractionDigits: 0', function(){
+            var p = new PluralRules('en', { maximumFractionDigits: 0 });
+            expect(p.select(1)).to.equal('one');
+            expect(p.select('1.1')).to.equal('one');
+            expect(p.select(2)).to.equal('other');
+            expect(p.select('-2.0')).to.equal('other');
         });
     });
 });

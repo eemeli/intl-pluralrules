@@ -66,21 +66,38 @@ export default class PluralRules {
         return canonicalizeLocaleList(locales).filter(findLocale)
     }
 
-    constructor(locales, { localeMatcher, type } = {}) {
+    constructor(locales, { localeMatcher, maximumFractionDigits, minimumFractionDigits, type } = {}) {
         handleLocaleMatcher(localeMatcher)
-        this.type = getType(type)
-        this.locale = resolveLocale(locales)
+        this._locale = resolveLocale(locales)
+        this._type = getType(type)
+        if (typeof Intl === 'object' && Intl.NumberFormat) {
+            this._nf = new Intl.NumberFormat(this._locale, { maximumFractionDigits, minimumFractionDigits })
+        } else {
+            this._minFD = typeof minimumFractionDigits === 'number' ? minimumFractionDigits : 0
+            this._maxFD = typeof maximumFractionDigits === 'number' ? maximumFractionDigits : Math.max(this._minFD, 3)
+            this._format = n => (
+                this._minFD > 0 ? n.toFixed(this._minFD)
+                : this._maxFD === 0 ? n.toFixed(0)
+                : n
+            )
+        }
     }
 
     resolvedOptions() {
+        const opt = this._nf && this._nf.resolvedOptions()
         return {
-            locale: this.locale,
-            pluralCategories: pluralCategories[this.locale][this.type],
-            type: this.type
+            locale: this._locale,
+            maximumFractionDigits: opt ? opt.maximumFractionDigits : this._maxFD,
+            minimumFractionDigits: opt ? opt.minimumFractionDigits : this._minFD,
+            pluralCategories: pluralCategories[this._locale][this._type],
+            type: this._type
         }
     }
 
     select(number) {
-        return pluralRules[this.locale](number, this.type === 'ordinal')
+        if (typeof number !== 'number') number = Number(number)
+        if (!isFinite(number)) return 'other'
+        const fmt = this._nf ? this._nf.format(number) : this._format(number)
+        return pluralRules[this._locale](fmt, this._type === 'ordinal')
     }
 }
