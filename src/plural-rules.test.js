@@ -1,139 +1,124 @@
-var expect = require('expect.js')
-var PluralRules = require('../plural-rules').default
+const PluralRules = require('../plural-rules').default
 
 describe('Intl.PluralRules polyfill', function() {
   it('should exist', function() {
-    expect(PluralRules).to.be.a('function')
+    expect(PluralRules).toBeInstanceOf(Function)
   })
   describe('.supportedLocalesOf()', function() {
     it('should be executable', function() {
-      expect(PluralRules.supportedLocalesOf).to.not.throwException(console.log)
+      expect(() => PluralRules.supportedLocalesOf).not.toThrow()
     })
     it('should return an empty array when called with no args', function() {
-      var res = PluralRules.supportedLocalesOf()
-      expect(res).to.be.an('array')
-      expect(res).to.be.empty()
+      const res = PluralRules.supportedLocalesOf()
+      expect(res).toMatchObject([])
     })
     it('should return a valid array', function() {
-      var res = PluralRules.supportedLocalesOf(['en', 'fi-FI'])
-      expect(res).to.be.an('array')
-      expect(res).to.have.length(2)
-      expect(res[0]).to.equal('en')
-      expect(res[1]).to.equal('fi-FI')
+      const locales = ['en', 'fi-FI']
+      const res = PluralRules.supportedLocalesOf(locales)
+      expect(res).toMatchObject(locales)
     })
   })
 
   describe('constructor', function() {
     it('should require `new`', function() {
-      expect(PluralRules).to.throwException(function(e) {
-        expect(e).to.be.a(TypeError)
-      })
-      var fn = function() {
-        new PluralRules()
-      }
-      expect(fn).to.not.throwException(console.log)
+      expect(() => PluralRules()).toThrow(TypeError)
+      expect(() => new PluralRules()).not.toThrow()
     })
     it('should select a default type & locale', function() {
-      var p = new PluralRules()
-      expect(p).to.be.an('object')
-      expect(p.select).to.be.a('function')
-      var opt = p.resolvedOptions()
-      expect(opt.type).to.equal('cardinal')
-      expect(opt.locale).to.be.a('string')
-      expect(opt.locale.length).to.be.greaterThan(1)
+      const p = new PluralRules()
+      expect(p).toBeInstanceOf(Object)
+      expect(p.select).toBeInstanceOf(Function)
+      const opt = p.resolvedOptions()
+      expect(opt.type).toBe('cardinal')
+      expect(typeof opt.locale).toBe('string')
+      expect(opt.locale.length).toBeGreaterThan(1)
     })
     it('should handle valid simple arguments correctly', function() {
-      var p = new PluralRules('fi-FI', { type: 'ordinal' })
-      expect(p).to.be.an('object')
-      expect(p.select).to.be.a('function')
-      var opt = p.resolvedOptions()
-      expect(opt.type).to.equal('ordinal')
-      expect(opt.locale).to.match(/^fi\b/)
+      const p = new PluralRules('fi-FI', { type: 'ordinal' })
+      expect(p).toBeInstanceOf(Object)
+      expect(p.select).toBeInstanceOf(Function)
+      const opt = p.resolvedOptions()
+      expect(opt.type).toBe('ordinal')
+      expect(opt.locale).toMatch(/^fi\b/)
     })
     it('should choose a locale correctly from multiple choices', function() {
-      var p = new PluralRules(['i-klingon', 'ak', 'en'])
-      expect(p).to.be.an('object')
-      expect(p.select).to.be.a('function')
-      var opt = p.resolvedOptions()
-      expect(opt.type).to.equal('cardinal')
-      expect(opt.locale).to.equal('ak')
+      const p = new PluralRules(['i-klingon', 'ak', 'en'])
+      expect(p).toBeInstanceOf(Object)
+      expect(p.select).toBeInstanceOf(Function)
+      const opt = p.resolvedOptions()
+      expect(opt.type).toBe('cardinal')
+      expect(opt.locale).toBe('ak')
     })
     it('should complain about invalid types', function() {
-      var fn = function() {
-        new PluralRules('en', { type: 'invalid' })
-      }
-      expect(fn).to.throwException(function(e) {
-        expect(e).to.be.a(RangeError)
-      })
+      const fn = () => new PluralRules('en', { type: 'invalid' })
+      expect(fn).toThrow(RangeError)
     })
   })
 
   describe('#resolvedOptions()', function() {
     it('should exist', function() {
-      var p = new PluralRules()
-      expect(p.resolvedOptions).to.be.a('function')
+      const p = new PluralRules()
+      expect(p.resolvedOptions).toBeInstanceOf(Function)
     })
     it('should return expected values', function() {
-      var p = new PluralRules('fi-FI'),
-        res = p.resolvedOptions()
-      expect(res).to.be.an('object')
-      expect(res.locale).to.match(/^fi\b/)
-      expect(res.minimumIntegerDigits).to.equal(1)
-      expect(res.minimumFractionDigits).to.equal(0)
-      expect(res.maximumFractionDigits).to.equal(3)
-      expect(res.pluralCategories).to.eql(['one', 'other'])
-      expect(res.type).to.equal('cardinal')
+      const res = new PluralRules('fi-FI').resolvedOptions()
+      expect(res).toMatchObject({
+        minimumIntegerDigits: 1,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 3,
+        pluralCategories: ['one', 'other'],
+        type: 'cardinal'
+      })
+      expect(res.locale).toMatch(/^fi\b/)
     })
   })
 
   describe('#select()', function() {
     it('should return a string', function() {
-      var p = new PluralRules(),
-        res = p.select()
-      expect(res).to.be.a('string')
-      expect(res).to.equal('other')
+      const res = new PluralRules().select()
+      expect(res).toBe('other')
     })
     it('should work for English cardinals', function() {
-      var p = new PluralRules('en', { type: 'cardinal' })
-      expect(p.select(1)).to.equal('one')
-      expect(p.select('1.0')).to.equal('one')
-      expect(p.select(2)).to.equal('other')
-      expect(p.select('-2.0')).to.equal('other')
+      const p = new PluralRules('en', { type: 'cardinal' })
+      expect(p.select(1)).toBe('one')
+      expect(p.select('1.0')).toBe('one')
+      expect(p.select(2)).toBe('other')
+      expect(p.select('-2.0')).toBe('other')
     })
     it('should work for English ordinals', function() {
-      var p = new PluralRules('en', { type: 'ordinal' })
-      expect(p.select(1)).to.equal('one')
-      expect(p.select('22')).to.equal('two')
-      expect(p.select('3.0')).to.equal('few')
-      expect(p.select(11)).to.equal('other')
+      const p = new PluralRules('en', { type: 'ordinal' })
+      expect(p.select(1)).toBe('one')
+      expect(p.select('22')).toBe('two')
+      expect(p.select('3.0')).toBe('few')
+      expect(p.select(11)).toBe('other')
     })
     it('should work with minimumFractionDigits: 1', function() {
-      var p = new PluralRules('en', { minimumFractionDigits: 1 })
-      expect(p.select(1)).to.equal('other')
-      expect(p.select('1.0')).to.equal('other')
-      expect(p.select(2)).to.equal('other')
-      expect(p.select('-2.0')).to.equal('other')
+      const p = new PluralRules('en', { minimumFractionDigits: 1 })
+      expect(p.select(1)).toBe('other')
+      expect(p.select('1.0')).toBe('other')
+      expect(p.select(2)).toBe('other')
+      expect(p.select('-2.0')).toBe('other')
     })
     it('should work with maximumFractionDigits: 0', function() {
-      var p = new PluralRules('en', { maximumFractionDigits: 0 })
-      expect(p.select(1)).to.equal('one')
-      expect(p.select('1.1')).to.equal('one')
-      expect(p.select(2)).to.equal('other')
-      expect(p.select('-2.0')).to.equal('other')
+      const p = new PluralRules('en', { maximumFractionDigits: 0 })
+      expect(p.select(1)).toBe('one')
+      expect(p.select('1.1')).toBe('one')
+      expect(p.select(2)).toBe('other')
+      expect(p.select('-2.0')).toBe('other')
     })
     it('should work with minimumSignificantDigits: 2', function() {
-      var p = new PluralRules('en', { minimumSignificantDigits: 2 })
-      expect(p.select(1)).to.equal('other')
-      expect(p.select('1.0')).to.equal('other')
-      expect(p.select(2)).to.equal('other')
-      expect(p.select('-2.0')).to.equal('other')
+      const p = new PluralRules('en', { minimumSignificantDigits: 2 })
+      expect(p.select(1)).toBe('other')
+      expect(p.select('1.0')).toBe('other')
+      expect(p.select(2)).toBe('other')
+      expect(p.select('-2.0')).toBe('other')
     })
     it('should work with maximumSignificantDigits: 1', function() {
-      var p = new PluralRules('en', { maximumSignificantDigits: 1 })
-      expect(p.select(1)).to.equal('one')
-      expect(p.select('1.1')).to.equal('one')
-      expect(p.select(2)).to.equal('other')
-      expect(p.select('-2.0')).to.equal('other')
+      const p = new PluralRules('en', { maximumSignificantDigits: 1 })
+      expect(p.select(1)).toBe('one')
+      expect(p.select('1.1')).toBe('one')
+      expect(p.select(2)).toBe('other')
+      expect(p.select('-2.0')).toBe('other')
     })
   })
 })

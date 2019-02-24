@@ -34,12 +34,11 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
-    "expect.js": "^0.3.1",
-    "mocha": "^6.0.1"
+    "jest": "^24.1.0"
   },
   "scripts": {
-    "build": "babel -d . src/",
+    "build": "babel -d . src/ --ignore '**/*.test.js'",
     "prepublishOnly": "npm test",
-    "test": " npm run build && mocha src/plural-rules.test.js"
+    "test": " npm run build && jest"
   }
 }
