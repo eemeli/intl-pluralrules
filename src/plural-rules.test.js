@@ -18,6 +18,19 @@ describe('Intl.PluralRules polyfill', () => {
       const res = PluralRules.supportedLocalesOf(locales)
       expect(res).toMatchObject(locales)
     })
+    test('should ignore wildcards', () => {
+      const locales = ['en', '*', '*-foo', 'fi-FI']
+      const res = PluralRules.supportedLocalesOf(locales)
+      expect(res).toMatchObject(['en', 'fi-FI'])
+    })
+    test('should complain about non-strings', () => {
+      expect(() => PluralRules.supportedLocalesOf(['en', 3])).toThrow(TypeError)
+      expect(() => PluralRules.supportedLocalesOf([null])).toThrow(TypeError)
+    })
+    test('should complain about bad tags', () => {
+      expect(() => PluralRules.supportedLocalesOf('en-')).toThrow(RangeError)
+      expect(() => PluralRules.supportedLocalesOf('-en')).toThrow(RangeError)
+    })
   })
 
   describe('constructor', () => {

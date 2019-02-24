@@ -8,35 +8,26 @@ const isStructurallyValidLanguageTag = locale =>
 const canonicalizeLocaleList = locales => {
   if (!locales) return []
   if (!Array.isArray(locales)) locales = [locales]
-  return locales
-    .map(tag => {
+  const res = {}
+  for (let i = 0; i < locales.length; ++i) {
+    let tag = locales[i]
+    if (tag && typeof tag === 'object') tag = String(tag)
+    if (typeof tag !== 'string') {
       // Requiring tag to be a String or Object means that the Number value
       // NaN will not be interpreted as the language tag "nan", which stands
       // for Min Nan Chinese.
-      switch (typeof tag) {
-        case 'string':
-          break
-        case 'object':
-          tag = tag.toString()
-          break
-        default:
-          throw new TypeError(
-            'Locales should be strings, ' + JSON.stringify(tag) + " isn't."
-          )
-      }
-      if (!isStructurallyValidLanguageTag(tag)) {
-        throw new RangeError(
-          'The locale ' +
-            JSON.stringify(tag) +
-            ' is not a structurally valid BCP 47 language tag.'
-        )
-      }
-      return tag
-    })
-    .reduce((seen, tag) => {
-      if (seen.indexOf(tag) < 0) seen.push(tag)
-      return seen
-    }, [])
+      const msg = `Locales should be strings, ${JSON.stringify(tag)} isn't.`
+      throw new TypeError(msg)
+    }
+    if (tag[0] === '*') continue
+    if (!isStructurallyValidLanguageTag(tag)) {
+      const strTag = JSON.stringify(tag)
+      const msg = `The locale ${strTag} is not a structurally valid BCP 47 language tag.`
+      throw new RangeError(msg)
+    }
+    res[tag] = true
+  }
+  return Object.keys(res)
 }
 
 const defaultLocale = () =>
@@ -68,24 +59,12 @@ const getType = type => {
   throw new RangeError('Not a valid plural type: ' + JSON.stringify(type))
 }
 
-const handleLocaleMatcher = localeMatcher => {
-  if (
-    localeMatcher &&
-    localeMatcher !== 'best fit' &&
-    typeof console !== 'undefined'
-  ) {
-    console.warn('intl-polyfill only supports `best fit` localeMatcher')
-  }
-}
-
 export default class PluralRules {
-  static supportedLocalesOf(locales, { localeMatcher } = {}) {
-    handleLocaleMatcher(localeMatcher)
+  static supportedLocalesOf(locales) {
     return canonicalizeLocaleList(locales).filter(findLocale)
   }
 
   constructor(locales, opt = {}) {
-    handleLocaleMatcher(opt.localeMatcher)
     this._locale = resolveLocale(locales)
     this._type = getType(opt.type)
     if (typeof Intl === 'object' && Intl.NumberFormat) {
@@ -129,21 +108,21 @@ export default class PluralRules {
   }
 
   _format(n) {
-      if (this._nf) return this._nf.format(n)
-      if (this._minSD) {
-          const raw = String(n)
-          let prec = 0
-          for (let i = 0; i < raw.length; ++i) {
-              const c = raw[i]
-              if (c >= '0' && c <= '9') ++prec
-          }
-          if (prec < this._minSD) return n.toPrecision(this._minSD)
-          if (prec > this._maxSD) return n.toPrecision(this._maxSD)
-          return raw
+    if (this._nf) return this._nf.format(n)
+    if (this._minSD) {
+      const raw = String(n)
+      let prec = 0
+      for (let i = 0; i < raw.length; ++i) {
+        const c = raw[i]
+        if (c >= '0' && c <= '9') ++prec
       }
-      if (this._minFD > 0) return n.toFixed(this._minFD)
-      if (this._maxFD === 0) return n.toFixed(0)
-      return String(n)
+      if (prec < this._minSD) return n.toPrecision(this._minSD)
+      if (prec > this._maxSD) return n.toPrecision(this._maxSD)
+      return raw
+    }
+    if (this._minFD > 0) return n.toFixed(this._minFD)
+    if (this._maxFD === 0) return n.toFixed(0)
+    return String(n)
   }
 
   select(number) {
