@@ -40,6 +40,6 @@
   "scripts": {
     "build": "babel -d . src/",
     "prepublishOnly": "npm test",
-    "test": " npm run build && mocha test/polyfill.js"
+    "test": " npm run build && mocha src/plural-rules.test.js"
   }
 }
