@@ -20,7 +20,7 @@
   "main": "polyfill.js",
   "babel": {
     "presets": [
-      "env"
+      "@babel/preset-env"
     ]
   },
   "prettier": {
@@ -28,13 +28,14 @@
     "singleQuote": true
   },
   "dependencies": {
-    "make-plural": "^4.1.1"
+    "make-plural": "^4.3.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.3",
+    "@babel/preset-env": "^7.3.1",
     "expect.js": "^0.3.1",
-    "mocha": "^5.0.5"
+    "mocha": "^6.0.1"
   },
   "scripts": {
     "build": "babel -d . src/",
