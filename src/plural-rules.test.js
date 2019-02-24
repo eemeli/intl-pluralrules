@@ -1,30 +1,31 @@
-const PluralRules = require('../plural-rules').default
+import PluralRules from './plural-rules'
 
-describe('Intl.PluralRules polyfill', function() {
-  it('should exist', function() {
+describe('Intl.PluralRules polyfill', () => {
+  test('should exist', () => {
     expect(PluralRules).toBeInstanceOf(Function)
   })
-  describe('.supportedLocalesOf()', function() {
-    it('should be executable', function() {
+
+  describe('.supportedLocalesOf()', () => {
+    test('should be executable', () => {
       expect(() => PluralRules.supportedLocalesOf).not.toThrow()
     })
-    it('should return an empty array when called with no args', function() {
+    test('should return an empty array when called with no args', () => {
       const res = PluralRules.supportedLocalesOf()
       expect(res).toMatchObject([])
     })
-    it('should return a valid array', function() {
+    test('should return a valid array', () => {
       const locales = ['en', 'fi-FI']
       const res = PluralRules.supportedLocalesOf(locales)
       expect(res).toMatchObject(locales)
     })
   })
 
-  describe('constructor', function() {
-    it('should require `new`', function() {
+  describe('constructor', () => {
+    test('should require `new`', () => {
       expect(() => PluralRules()).toThrow(TypeError)
       expect(() => new PluralRules()).not.toThrow()
     })
-    it('should select a default type & locale', function() {
+    test('should select a default type & locale', () => {
       const p = new PluralRules()
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
@@ -33,7 +34,7 @@ describe('Intl.PluralRules polyfill', function() {
       expect(typeof opt.locale).toBe('string')
       expect(opt.locale.length).toBeGreaterThan(1)
     })
-    it('should handle valid simple arguments correctly', function() {
+    test('should handle valid simple arguments correctly', () => {
       const p = new PluralRules('fi-FI', { type: 'ordinal' })
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
@@ -41,7 +42,7 @@ describe('Intl.PluralRules polyfill', function() {
       expect(opt.type).toBe('ordinal')
       expect(opt.locale).toMatch(/^fi\b/)
     })
-    it('should choose a locale correctly from multiple choices', function() {
+    test('should choose a locale correctly from multiple choices', () => {
       const p = new PluralRules(['i-klingon', 'ak', 'en'])
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
@@ -49,18 +50,18 @@ describe('Intl.PluralRules polyfill', function() {
       expect(opt.type).toBe('cardinal')
       expect(opt.locale).toBe('ak')
     })
-    it('should complain about invalid types', function() {
+    test('should complain about invalid types', () => {
       const fn = () => new PluralRules('en', { type: 'invalid' })
       expect(fn).toThrow(RangeError)
     })
   })
 
-  describe('#resolvedOptions()', function() {
-    it('should exist', function() {
+  describe('#resolvedOptions()', () => {
+    test('should exist', () => {
       const p = new PluralRules()
       expect(p.resolvedOptions).toBeInstanceOf(Function)
     })
-    it('should return expected values', function() {
+    test('should return expected values', () => {
       const res = new PluralRules('fi-FI').resolvedOptions()
       expect(res).toMatchObject({
         minimumIntegerDigits: 1,
@@ -73,47 +74,47 @@ describe('Intl.PluralRules polyfill', function() {
     })
   })
 
-  describe('#select()', function() {
-    it('should return a string', function() {
+  describe('#select()', () => {
+    test('should return a string', () => {
       const res = new PluralRules().select()
       expect(res).toBe('other')
     })
-    it('should work for English cardinals', function() {
+    test('should work for English cardinals', () => {
       const p = new PluralRules('en', { type: 'cardinal' })
       expect(p.select(1)).toBe('one')
       expect(p.select('1.0')).toBe('one')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    it('should work for English ordinals', function() {
+    test('should work for English ordinals', () => {
       const p = new PluralRules('en', { type: 'ordinal' })
       expect(p.select(1)).toBe('one')
       expect(p.select('22')).toBe('two')
       expect(p.select('3.0')).toBe('few')
       expect(p.select(11)).toBe('other')
     })
-    it('should work with minimumFractionDigits: 1', function() {
+    test('should work with minimumFractionDigits: 1', () => {
       const p = new PluralRules('en', { minimumFractionDigits: 1 })
       expect(p.select(1)).toBe('other')
       expect(p.select('1.0')).toBe('other')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    it('should work with maximumFractionDigits: 0', function() {
+    test('should work with maximumFractionDigits: 0', () => {
       const p = new PluralRules('en', { maximumFractionDigits: 0 })
       expect(p.select(1)).toBe('one')
       expect(p.select('1.1')).toBe('one')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    it('should work with minimumSignificantDigits: 2', function() {
+    test('should work with minimumSignificantDigits: 2', () => {
       const p = new PluralRules('en', { minimumSignificantDigits: 2 })
       expect(p.select(1)).toBe('other')
       expect(p.select('1.0')).toBe('other')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    it('should work with maximumSignificantDigits: 1', function() {
+    test('should work with maximumSignificantDigits: 1', () => {
       const p = new PluralRules('en', { maximumSignificantDigits: 1 })
       expect(p.select(1)).toBe('one')
       expect(p.select('1.1')).toBe('one')
