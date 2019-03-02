@@ -26,11 +26,11 @@ If `Intl.PluralRules` already exists and supports
 loaded.
 
 The implementation itself is available as
-`intl-polyfill/plural-rules`, if you'd prefer using it without modifying your
+`intl-pluralrules/plural-rules`, if you'd prefer using it without modifying your
 `Intl` object, or if you wish to use it rather than your environment's own:
 
 ```js
-import PluralRules from 'intl-polyfill/plural-rules'
+import PluralRules from 'intl-pluralrules/plural-rules'
 
 new PluralRules('en').select(1) // 'one'
 new PluralRules('en', { minimumSignificantDigits: 3 }).select(1) // 'other'
