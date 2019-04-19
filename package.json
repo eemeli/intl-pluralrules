@@ -1,6 +1,6 @@
 {
   "name": "intl-pluralrules",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Intl.PluralRules polyfill",
   "keywords": [
     "unicode",
