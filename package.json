@@ -43,7 +43,7 @@
   },
   "scripts": {
     "build": "babel -d . src/ --ignore '**/*.test.js'",
-    "prepublishOnly": "npm test",
+    "prepublishOnly": "npm test && npm run build",
     "test": "jest"
   }
 }
