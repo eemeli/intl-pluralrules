@@ -68,7 +68,8 @@ export default class PluralRules {
     this._locale = resolveLocale(locales)
     this._type = getType(opt.type)
     if (typeof Intl === 'object' && Intl.NumberFormat) {
-      this._nf = new Intl.NumberFormat(this._locale, opt)
+      // make-plural expects latin digits with . decimal separator
+      this._nf = new Intl.NumberFormat('en', opt)
     } else {
       const {
         minimumIntegerDigits: minID,

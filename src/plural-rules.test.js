@@ -106,6 +106,11 @@ describe('Intl.PluralRules polyfill', () => {
       expect(p.select('3.0')).toBe('few')
       expect(p.select(11)).toBe('other')
     })
+    test('should work for Arabic', () => {
+      const p = new PluralRules('ar-SA')
+      expect(p.select(0)).toBe('zero')
+      expect(p.select(1)).toBe('one')
+    })
     test('should work with minimumFractionDigits: 1', () => {
       const p = new PluralRules('en', { minimumFractionDigits: 1 })
       expect(p.select(1)).toBe('other')
@@ -133,6 +138,14 @@ describe('Intl.PluralRules polyfill', () => {
       expect(p.select('1.1')).toBe('one')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
+    })
+    test('should work with "," as decimal separator', () => {
+      const p0 = new PluralRules('cs', { minimumFractionDigits: 0 })
+      const p1 = new PluralRules('cs', { minimumFractionDigits: 1 })
+      expect(p0.select(1)).toBe('one')
+      expect(p1.select(1)).toBe('many')
+      expect(p0.select(10)).toBe('other')
+      expect(p1.select(10)).toBe('many')
     })
   })
 })
