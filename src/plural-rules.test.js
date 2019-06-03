@@ -96,6 +96,7 @@ describe('Intl.PluralRules polyfill', () => {
       const p = new PluralRules('en', { type: 'cardinal' })
       expect(p.select(1)).toBe('one')
       expect(p.select('1.0')).toBe('one')
+      expect(p.select(-1)).toBe('one')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })

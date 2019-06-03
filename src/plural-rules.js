@@ -129,7 +129,7 @@ export default class PluralRules {
   select(number) {
     if (typeof number !== 'number') number = Number(number)
     if (!isFinite(number)) return 'other'
-    const fmt = this._format(number)
+    const fmt = this._format(Math.abs(number))
     return pluralRules[this._locale](fmt, this._type === 'ordinal')
   }
 }
