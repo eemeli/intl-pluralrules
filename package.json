@@ -39,11 +39,13 @@
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
-    "jest": "^24.8.0"
+    "jest": "^24.8.0",
+    "test262-harness": "^6.3.1"
   },
   "scripts": {
     "build": "babel -d . src/ --ignore '**/*.test.js'",
     "prepublishOnly": "npm test && npm run build",
-    "test": "jest"
+    "test": "jest",
+    "test262": "node test262-runner"
   }
 }
