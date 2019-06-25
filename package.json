@@ -45,7 +45,7 @@
   "scripts": {
     "build": "babel -d . src/ --ignore '**/*.test.js'",
     "prepublishOnly": "npm test && npm run build",
-    "test": "jest",
+    "test": "jest src",
     "test262": "node test262-runner"
   }
 }
