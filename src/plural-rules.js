@@ -127,9 +127,13 @@ export default class PluralRules {
   }
 
   select(number) {
+    if (!(this instanceof PluralRules))
+      throw new TypeError(`select() called on incompatible ${this}`)
     if (typeof number !== 'number') number = Number(number)
     if (!isFinite(number)) return 'other'
     const fmt = this._format(Math.abs(number))
     return pluralRules[this._locale](fmt, this._type === 'ordinal')
   }
 }
+
+Object.defineProperty(PluralRules, 'prototype', { writable: false })
