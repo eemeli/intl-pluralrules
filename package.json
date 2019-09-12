@@ -15,6 +15,7 @@
   "repository": "eemeli/intl-pluralrules",
   "files": [
     "plural-rules.js",
+    "plural-rules.d.ts",
     "polyfill.js"
   ],
   "main": "polyfill.js",
