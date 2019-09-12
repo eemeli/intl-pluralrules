@@ -43,7 +43,7 @@
     "jest": "^24.8.0"
   },
   "scripts": {
-    "build": "babel -d . src/ --ignore '**/*.test.js' && cp src/*.d.ts .",
+    "build": "babel -d . src/ --ignore '**/*.test.js'",
     "prepublishOnly": "npm test && npm run build",
     "test": "jest"
   }
