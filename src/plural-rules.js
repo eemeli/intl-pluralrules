@@ -1,5 +1,5 @@
-import pluralRules from 'make-plural'
-import pluralCategories from 'make-plural/umd/pluralCategories'
+import * as pluralRules from 'make-plural/plurals'
+import * as pluralCategories from 'make-plural/pluralCategories'
 
 // does not check for duplicate subtags
 const isStructurallyValidLanguageTag = locale =>

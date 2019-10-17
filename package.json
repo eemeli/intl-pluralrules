@@ -34,7 +34,7 @@
     "singleQuote": true
   },
   "dependencies": {
-    "make-plural": "^4.3.0"
+    "make-plural": "^6.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
