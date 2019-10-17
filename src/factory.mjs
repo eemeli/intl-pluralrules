@@ -39,7 +39,11 @@ const getType = type => {
   throw new RangeError('Not a valid plural type: ' + JSON.stringify(type))
 }
 
-export default function getPluralRules(getSelector, getCategories) {
+export default function getPluralRules(
+  NumberFormat,
+  getSelector,
+  getCategories
+) {
   const findLocale = locale => {
     do {
       if (getSelector(locale)) return locale
@@ -66,68 +70,30 @@ export default function getPluralRules(getSelector, getCategories) {
       this._locale = resolveLocale(locales)
       this._select = getSelector(this._locale)
       this._type = getType(opt.type)
-      if (typeof Intl === 'object' && Intl.NumberFormat) {
-        // make-plural expects latin digits with . decimal separator
-        this._nf = new Intl.NumberFormat('en', opt)
-      } else {
-        const {
-          minimumIntegerDigits: minID,
-          minimumFractionDigits: minFD,
-          maximumFractionDigits: maxFD,
-          minimumSignificantDigits: minSD,
-          maximumSignificantDigits: maxSD
-        } = opt
-        this._minID = typeof minID === 'number' ? minID : 1
-        this._minFD = typeof minFD === 'number' ? minFD : 0
-        this._maxFD =
-          typeof maxFD === 'number' ? maxFD : Math.max(this._minFD, 3)
-        if (typeof minSD === 'number' || typeof maxSD === 'number') {
-          this._minSD = typeof minSD === 'number' ? minSD : 1
-          this._maxSD = typeof maxSD === 'number' ? maxSD : 21
-        }
-      }
+      this._nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
     }
 
     resolvedOptions() {
-      const nfOpt = this._nf && this._nf.resolvedOptions()
+      const {
+        minimumIntegerDigits,
+        minimumFractionDigits,
+        maximumFractionDigits,
+        minimumSignificantDigits,
+        maximumSignificantDigits
+      } = this._nf.resolvedOptions()
       const opt = {
         locale: this._locale,
-        minimumIntegerDigits: nfOpt ? nfOpt.minimumIntegerDigits : this._minID,
-        minimumFractionDigits: nfOpt
-          ? nfOpt.minimumFractionDigits
-          : this._minFD,
-        maximumFractionDigits: nfOpt
-          ? nfOpt.maximumFractionDigits
-          : this._maxFD,
+        minimumIntegerDigits,
+        minimumFractionDigits,
+        maximumFractionDigits,
         pluralCategories: getCategories(this._locale, this._type === 'ordinal'),
         type: this._type
       }
-      if (nfOpt && typeof nfOpt.minimumSignificantDigits === 'number') {
-        opt.minimumSignificantDigits = nfOpt.minimumSignificantDigits
-        opt.maximumSignificantDigits = nfOpt.maximumSignificantDigits
-      } else if (typeof this._minSD === 'number') {
-        opt.minimumSignificantDigits = this._minSD
-        opt.maximumSignificantDigits = this._maxSD
+      if (typeof minimumSignificantDigits === 'number') {
+        opt.minimumSignificantDigits = minimumSignificantDigits
+        opt.maximumSignificantDigits = maximumSignificantDigits
       }
       return opt
-    }
-
-    _format(n) {
-      if (this._nf) return this._nf.format(n)
-      if (this._minSD) {
-        const raw = String(n)
-        let prec = 0
-        for (let i = 0; i < raw.length; ++i) {
-          const c = raw[i]
-          if (c >= '0' && c <= '9') ++prec
-        }
-        if (prec < this._minSD) return n.toPrecision(this._minSD)
-        if (prec > this._maxSD) return n.toPrecision(this._maxSD)
-        return raw
-      }
-      if (this._minFD > 0) return n.toFixed(this._minFD)
-      if (this._maxFD === 0) return n.toFixed(0)
-      return String(n)
     }
 
     select(number) {
@@ -135,7 +101,7 @@ export default function getPluralRules(getSelector, getCategories) {
         throw new TypeError(`select() called on incompatible ${this}`)
       if (typeof number !== 'number') number = Number(number)
       if (!isFinite(number)) return 'other'
-      const fmt = this._format(Math.abs(number))
+      const fmt = this._nf.format(Math.abs(number))
       return this._select(fmt, this._type === 'ordinal')
     }
   }

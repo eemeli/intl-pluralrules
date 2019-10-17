@@ -16,6 +16,7 @@
   "files": [
     "factory.*",
     "plural-rules.*",
+    "pseudo-number-format.*",
     "polyfill.*"
   ],
   "main": "polyfill",

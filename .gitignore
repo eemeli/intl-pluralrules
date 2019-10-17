@@ -1,5 +1,4 @@
 .*
 node_modules
-/factory.*js
-/plural-rules.*js
-/polyfill.*js
+/*.js
+/*.mjs
