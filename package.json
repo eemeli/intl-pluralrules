@@ -14,6 +14,7 @@
   "homepage": "https://github.com/eemeli/intl-pluralrules#readme",
   "repository": "eemeli/intl-pluralrules",
   "files": [
+    "factory.js",
     "plural-rules.js",
     "plural-rules.d.ts",
     "polyfill.js"
