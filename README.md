@@ -49,8 +49,8 @@ PluralRules class with locale support limited to only what you actually use.
 
 [make-plural]: https://www.npmjs.com/package/make-plural
 
-Thanks to tree-shaking, this example that only support English and French
-minifies & gzips to under 2kB. Do note that this size difference is only
+Thanks to tree-shaking, this example that only supports English and French
+minifies & gzips to 1619 bytes. Do note that this size difference is only
 apparent with minified production builds.
 
 ```js
@@ -75,9 +75,10 @@ export default PluralRules
 All arguments of `getPluralRules(NumberFormat, getSelector, getCategories)` are
 required.
 
-- `NumberFormat` should be `Intl.NumberFormat`, or the minimal implementation
-  available at `intl-pluralrules/pseudo-number-format`. It should at least
-  support the `"en"` locale and all of the min/max digit count options.
+- `NumberFormat` should be `Intl.NumberFormat`, or a minimal implementation
+  such as the one available at `intl-pluralrules/pseudo-number-format`. It
+  should at least support the `"en"` locale and all of the min/max digit count
+  options.
 - `getSelector(lc)` should return a `function(n, ord)` returning the plural
   category of `n`, using cardinal plural rules (by default), or ordinal rules if
   `ord` is true. `n` may be a number, or the formatted string representation of
