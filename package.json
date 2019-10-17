@@ -14,24 +14,24 @@
   "homepage": "https://github.com/eemeli/intl-pluralrules#readme",
   "repository": "eemeli/intl-pluralrules",
   "files": [
-    "factory.js",
-    "plural-rules.js",
-    "plural-rules.d.ts",
-    "polyfill.js"
+    "factory.*",
+    "plural-rules.*",
+    "polyfill.*"
   ],
-  "main": "polyfill.js",
+  "main": "polyfill",
   "jest": {
     "moduleFileExtensions": [
+      "mjs",
       "js",
-      "json",
-      "mjs"
+      "json"
     ],
     "testMatch": [
       "**/*.test.mjs"
     ],
     "transform": {
       "\\.mjs$": "babel-jest"
-    }
+    },
+    "transformIgnorePatterns": []
   },
   "prettier": {
     "semi": false,
@@ -48,7 +48,9 @@
     "jest": "^24.9.0"
   },
   "scripts": {
-    "build": "babel -d . src/ --ignore '**/*.test.mjs'",
+    "build:cjs": "TARGET=cjs babel -d . src/ --ignore '**/*.test.mjs'",
+    "build:mjs": "babel -d . src/ --ignore '**/*.test.mjs' --keep-file-extension",
+    "build": "npm run build:mjs && npm run build:cjs",
     "prepublishOnly": "npm test && npm run build",
     "test": "jest"
   }
