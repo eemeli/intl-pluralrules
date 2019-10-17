@@ -30,6 +30,19 @@
       ]
     ]
   },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "mjs"
+    ],
+    "testMatch": [
+      "**/*.test.mjs"
+    ],
+    "transform": {
+      "\\.mjs$": "babel-jest"
+    }
+  },
   "prettier": {
     "semi": false,
     "singleQuote": true
@@ -41,10 +54,11 @@
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
-    "jest": "^24.8.0"
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0"
   },
   "scripts": {
-    "build": "babel -d . src/ --ignore '**/*.test.js'",
+    "build": "babel -d . src/ --ignore '**/*.test.mjs'",
     "prepublishOnly": "npm test && npm run build",
     "test": "jest"
   }
