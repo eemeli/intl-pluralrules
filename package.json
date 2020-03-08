@@ -21,6 +21,7 @@
   ],
   "main": "polyfill",
   "jest": {
+    "collectCoverage": true,
     "moduleFileExtensions": [
       "mjs",
       "js",
@@ -52,6 +53,7 @@
     "build:cjs": "TARGET=cjs babel -d . src/ --ignore '**/*.test.mjs'",
     "build:mjs": "babel -d . src/ --ignore '**/*.test.mjs' --keep-file-extension",
     "build": "npm run build:mjs && npm run build:cjs",
+    "clean": "git clean -fdxe node_modules -e examples/node_modules",
     "prepublishOnly": "npm test && npm run build",
     "test": "jest"
   }
