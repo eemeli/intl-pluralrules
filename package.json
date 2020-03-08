@@ -39,14 +39,14 @@
     "singleQuote": true
   },
   "dependencies": {
-    "make-plural": "^6.0.1"
+    "make-plural": "^6.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
-    "babel-jest": "^24.9.0",
-    "jest": "^24.9.0"
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "babel-jest": "^25.1.0",
+    "jest": "^25.1.0"
   },
   "scripts": {
     "build:cjs": "TARGET=cjs babel -d . src/ --ignore '**/*.test.mjs'",
