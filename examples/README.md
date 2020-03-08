@@ -11,10 +11,11 @@ cd examples
 npm install
 npm run build
 
-gzip -k dist/*
+open index.html
+
+gzip -k dist/*js
 stat -f "%z %N" dist/*gz
-  # 6232 dist/cardinals.js.gz
-  # 1657 dist/factory.js.gz
-  # 7281 dist/polyfill.js.gz
-  # 7172 dist/ponyfill.js.gz
+  # 1659 dist/factory.js.gz
+  # 5286 dist/polyfill.js.gz
+  # 5185 dist/ponyfill.js.gz
 ```
