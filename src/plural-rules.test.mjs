@@ -1,6 +1,10 @@
-import PluralRules from './plural-rules'
+import * as Plurals from 'make-plural/plurals'
+import * as Categories from 'make-plural/pluralCategories'
+import getPluralRules from './factory'
+import ActualPluralRules from './plural-rules'
+import PseudoNumberFormat from './pseudo-number-format'
 
-describe('Intl.PluralRules polyfill', () => {
+function suite(PluralRules) {
   test('should exist', () => {
     expect(PluralRules).toBeInstanceOf(Function)
   })
@@ -22,6 +26,10 @@ describe('Intl.PluralRules polyfill', () => {
       const locales = ['en', '*', '*-foo', 'fi-FI']
       const res = PluralRules.supportedLocalesOf(locales)
       expect(res).toMatchObject(['en', 'fi-FI'])
+    })
+    test('should accept String objects', () => {
+      const res = PluralRules.supportedLocalesOf(new String('en'))
+      expect(res).toMatchObject(['en'])
     })
     test('should complain about non-strings', () => {
       expect(() => PluralRules.supportedLocalesOf(['en', 3])).toThrow(TypeError)
@@ -47,21 +55,32 @@ describe('Intl.PluralRules polyfill', () => {
       expect(typeof opt.locale).toBe('string')
       expect(opt.locale.length).toBeGreaterThan(1)
     })
+    test('should use navigator.language for default locale', () => {
+      const spy = jest.spyOn(navigator, 'language', 'get')
+      try {
+        spy.mockReturnValue('fi-FI')
+        const p = new PluralRules()
+        const opt = p.resolvedOptions()
+        expect(opt.locale).toMatch(/^fi\b/)
+      } finally {
+        spy.mockRestore()
+      }
+    })
     test('should handle valid simple arguments correctly', () => {
-      const p = new PluralRules('fi-FI', { type: 'ordinal' })
+      const p = new PluralRules('pt-PT', { type: 'ordinal' })
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
       const opt = p.resolvedOptions()
       expect(opt.type).toBe('ordinal')
-      expect(opt.locale).toMatch(/^fi\b/)
+      expect(opt.locale).toMatch(/^pt\b/)
     })
     test('should choose a locale correctly from multiple choices', () => {
-      const p = new PluralRules(['i-klingon', 'ak', 'en'])
+      const p = new PluralRules(['i-klingon', 'in', 'en'])
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
       const opt = p.resolvedOptions()
       expect(opt.type).toBe('cardinal')
-      expect(opt.locale).toBe('ak')
+      expect(opt.locale).toBe('in')
     })
     test('should complain about invalid types', () => {
       const fn = () => new PluralRules('en', { type: 'invalid' })
@@ -75,11 +94,14 @@ describe('Intl.PluralRules polyfill', () => {
       expect(p.resolvedOptions).toBeInstanceOf(Function)
     })
     test('should return expected values', () => {
-      const res = new PluralRules('fi-FI').resolvedOptions()
+      const res = new PluralRules('fi-FI', {
+        minimumIntegerDigits: 2,
+        minimumSignificantDigits: 3
+      }).resolvedOptions()
       expect(res).toMatchObject({
-        minimumIntegerDigits: 1,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 3,
+        minimumIntegerDigits: 2,
+        minimumSignificantDigits: 3,
+        maximumSignificantDigits: 21,
         pluralCategories: ['one', 'other'],
         type: 'cardinal'
       })
@@ -91,6 +113,10 @@ describe('Intl.PluralRules polyfill', () => {
     test('should return a string', () => {
       const res = new PluralRules().select()
       expect(res).toBe('other')
+    })
+    test('should complain if bound', () => {
+      const p = new PluralRules()
+      expect(p.select.bind(null)).toThrow(TypeError)
     })
     test('should work for English cardinals', () => {
       const p = new PluralRules('en', { type: 'cardinal' })
@@ -149,4 +175,19 @@ describe('Intl.PluralRules polyfill', () => {
       expect(p1.select(10)).toBe('many')
     })
   })
+}
+
+describe('With native Intl.NumberFormat', () => suite(ActualPluralRules))
+
+describe('With PseudoNumberFormat', () => {
+  const id = lc => (lc === 'in' ? '_in' : lc === 'pt-PT' ? 'pt_PT' : lc)
+  const getSelector = lc => Plurals[id(lc)]
+  const getCategories = (lc, ord) =>
+    Categories[id(lc)][ord ? 'ordinal' : 'cardinal']
+  const PluralRules = getPluralRules(
+    PseudoNumberFormat,
+    getSelector,
+    getCategories
+  )
+  suite(PluralRules)
 })

@@ -28,6 +28,7 @@ const canonicalizeLocaleList = locales => {
 }
 
 const defaultLocale = () =>
+  /* istanbul ignore next */
   (typeof navigator !== 'undefined' &&
     navigator &&
     (navigator.userLanguage || navigator.language)) ||

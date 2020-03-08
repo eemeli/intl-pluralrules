@@ -9,6 +9,7 @@ import PseudoNumberFormat from './pseudo-number-format'
 const Plurals = P.default || P
 const Categories = C.default || C
 
+/* istanbul ignore next */
 const NumberFormat =
   (typeof Intl === 'object' && Intl.NumberFormat) || PseudoNumberFormat
 
