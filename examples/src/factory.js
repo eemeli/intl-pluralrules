@@ -21,4 +21,4 @@ const PluralRules = getPluralRules(
 
 const one = new PluralRules('en').select(1)
 const other = new PluralRules('en', { minimumSignificantDigits: 3 }).select(1)
-console.log({ one, other })
+console.log('factory', { one, other })
