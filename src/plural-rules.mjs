@@ -1,7 +1,13 @@
-import * as Plurals from 'make-plural/plurals'
-import * as Categories from 'make-plural/pluralCategories'
+import * as P from 'make-plural/plurals.js'
+import * as C from 'make-plural/pluralCategories.js'
 import getPluralRules from './factory'
 import PseudoNumberFormat from './pseudo-number-format'
+
+// In a .mjs context, CommonJS imports only expose the default endpoint. We're
+// using them here because with this many small functions, Webpack produces less
+// cruft than for ES module exports.
+const Plurals = P.default || P
+const Categories = C.default || C
 
 const NumberFormat =
   (typeof Intl === 'object' && Intl.NumberFormat) || PseudoNumberFormat
