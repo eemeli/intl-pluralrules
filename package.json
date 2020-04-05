@@ -19,7 +19,24 @@
     "pseudo-number-format.*",
     "polyfill.*"
   ],
-  "main": "polyfill",
+  "type": "commonjs",
+  "main": "./polyfill.js",
+  "exports": {
+    ".": "./polyfill.js",
+    "./factory": [
+      {
+        "import": "./factory.mjs",
+        "require": "./factory.js"
+      },
+      "./factory.js"
+    ],
+    "./plural-rules": "./plural-rules.js",
+    "./polyfill": "./polyfill.js",
+    "./pseudo-number-format": "./pseudo-number-format.js"
+  },
+  "browser": {
+    "./factory.js": "./factory.mjs"
+  },
   "jest": {
     "collectCoverage": true,
     "moduleFileExtensions": [

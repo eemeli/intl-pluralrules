@@ -15,6 +15,6 @@ open index.html
 gzip -k dist/*js
 stat -f "%z %N" dist/*gz
   # 1339 dist/factory.js.gz
-  # 5202 dist/polyfill.js.gz
+  # 5221 dist/polyfill.js.gz
   # 5091 dist/ponyfill.js.gz
 ```
