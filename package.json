@@ -32,7 +32,8 @@
     ],
     "./plural-rules": "./plural-rules.js",
     "./polyfill": "./polyfill.js",
-    "./pseudo-number-format": "./pseudo-number-format.js"
+    "./pseudo-number-format": "./pseudo-number-format.js",
+    "./package.json": "./package.json"
   },
   "browser": {
     "./factory.js": "./factory.mjs"
