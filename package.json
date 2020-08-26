@@ -38,6 +38,9 @@
   "browser": {
     "./factory.js": "./factory.mjs"
   },
+  "react-native": {
+    "./factory": "./factory.js"
+  },
   "jest": {
     "collectCoverage": true,
     "moduleFileExtensions": [
