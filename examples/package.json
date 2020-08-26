@@ -5,6 +5,7 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "build": "../node_modules/.bin/rollup -c"
+    "build": "../node_modules/.bin/rollup -c",
+    "test": "sh test.sh"
   }
 }

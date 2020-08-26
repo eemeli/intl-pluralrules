@@ -22,3 +22,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
+      - working-directory: examples
+        run: npm run build
+      - working-directory: examples
+        run: npm test
