@@ -17,14 +17,14 @@ export default [
   },
   {
     input: 'src/factory.mjs',
-    output: { file: 'factory.js', format: 'cjs' },
+    output: { file: 'factory.js', format: 'cjs', exports: 'default' },
     plugins: [babel()]
   },
   {
     input: 'src/plural-rules.mjs',
     context: 'this',
     external: ['./factory', './pseudo-number-format'],
-    output: { file: 'plural-rules.js', format: 'cjs' },
+    output: { file: 'plural-rules.js', format: 'cjs', exports: 'default' },
     plugins: [
       resolve({ extensions: ['.js'] }),
       commonjs(),
@@ -40,7 +40,11 @@ export default [
   },
   {
     input: 'src/pseudo-number-format.mjs',
-    output: { file: 'pseudo-number-format.js', format: 'cjs' },
+    output: {
+      file: 'pseudo-number-format.js',
+      format: 'cjs',
+      exports: 'default'
+    },
     plugins: [babel()]
   }
 ]
