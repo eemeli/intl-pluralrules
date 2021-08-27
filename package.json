@@ -57,8 +57,10 @@
     "transformIgnorePatterns": []
   },
   "prettier": {
+    "arrowParens": "avoid",
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "trailingComma": "none"
   },
   "devDependencies": {
     "@babel/core": "^7.11.4",
