@@ -57,7 +57,7 @@ PluralRules class with locale support limited to only what you actually use.
 [make-plural]: https://www.npmjs.com/package/make-plural
 
 Thanks to tree-shaking, this example that only supports English and French
-minifies & gzips to 1448 bytes. Do note that this size difference is only
+minifies & gzips to 1472 bytes. Do note that this size difference is only
 apparent with minified production builds.
 
 ```js

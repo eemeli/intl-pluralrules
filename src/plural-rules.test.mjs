@@ -96,8 +96,10 @@ function suite(PluralRules) {
       const p = new PluralRules()
       expect(p.resolvedOptions).toBeInstanceOf(Function)
     })
+
     // https://crbug.com/v8/10832
-    test.skip('should return expected values', () => {
+    const test_ = process.version > 'v16' ? test : test.skip
+    test_('should return expected values', () => {
       const res = new PluralRules('fi-FI', {
         minimumIntegerDigits: 2,
         minimumSignificantDigits: 3
@@ -107,6 +109,7 @@ function suite(PluralRules) {
         minimumSignificantDigits: 3,
         maximumSignificantDigits: 21,
         pluralCategories: ['one', 'other'],
+        roundingPriority: 'auto',
         type: 'cardinal'
       })
       expect(res.locale).toMatch(/^fi\b/)
