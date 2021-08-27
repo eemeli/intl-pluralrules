@@ -93,8 +93,7 @@ function suite(PluralRules) {
       const p = new PluralRules()
       expect(p.resolvedOptions).toBeInstanceOf(Function)
     })
-    // https://crbug.com/v8/10832
-    test.skip('should return expected values', () => {
+    test('should return expected values', () => {
       const res = new PluralRules('fi-FI', {
         minimumIntegerDigits: 2,
         minimumSignificantDigits: 3
