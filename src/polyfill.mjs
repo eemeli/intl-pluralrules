@@ -9,7 +9,7 @@ if (typeof Intl === 'undefined') {
     this.Intl = { PluralRules }
   }
   PluralRules.polyfill = true
-} else if (!Intl.PluralRules) {
+} else if (!Intl.PluralRules || !Intl.PluralRules.prototype.selectRange) {
   Intl.PluralRules = PluralRules
   PluralRules.polyfill = true
 } else {

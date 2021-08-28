@@ -2,6 +2,7 @@
 
 import * as Plurals from 'make-plural/plurals'
 import * as Categories from 'make-plural/pluralCategories'
+import * as RangePlurals from 'make-plural/ranges'
 import getPluralRules from './factory'
 import ActualPluralRules from './plural-rules'
 import PseudoNumberFormat from './pseudo-number-format'
@@ -95,8 +96,10 @@ function suite(PluralRules) {
       const p = new PluralRules()
       expect(p.resolvedOptions).toBeInstanceOf(Function)
     })
+
     // https://crbug.com/v8/10832
-    test.skip('should return expected values', () => {
+    const test_ = process.version > 'v16' ? test : test.skip
+    test_('should return expected values', () => {
       const res = new PluralRules('fi-FI', {
         minimumIntegerDigits: 2,
         minimumSignificantDigits: 3
@@ -106,6 +109,7 @@ function suite(PluralRules) {
         minimumSignificantDigits: 3,
         maximumSignificantDigits: 21,
         pluralCategories: ['one', 'other'],
+        roundingPriority: 'auto',
         type: 'cardinal'
       })
       expect(res.locale).toMatch(/^fi\b/)
@@ -178,6 +182,45 @@ function suite(PluralRules) {
       expect(p1.select(10)).toBe('many')
     })
   })
+
+  describe('#selectRange()', () => {
+    test('should return a string', () => {
+      const res = new PluralRules().selectRange(0, 1)
+      expect(res).toBe('other')
+    })
+    test('should complain if bound', () => {
+      const p = new PluralRules()
+      expect(p.selectRange.bind(null)).toThrow(TypeError)
+    })
+    test('should work for English', () => {
+      const p = new PluralRules('en')
+      expect(p.selectRange(0, 1)).toBe('other')
+      expect(p.selectRange('0.0', '1.0')).toBe('other')
+      expect(p.selectRange(1, 2)).toBe('other')
+    })
+    test('should work for French', () => {
+      const p = new PluralRules('fr')
+      expect(p.selectRange(0, 1)).toBe('one')
+      expect(p.selectRange('0.0', '1.0')).toBe('one')
+      expect(p.selectRange(1, 2)).toBe('other')
+    })
+    test('should work with minimumFractionDigits: 1', () => {
+      const p = new PluralRules('fr', { minimumFractionDigits: 1 })
+      expect(p.selectRange(0, 1)).toBe('one')
+      expect(p.selectRange('0.0', '1.0')).toBe('one')
+      expect(p.selectRange(1, 2)).toBe('other')
+    })
+    test('should work with maximumFractionDigits: 0', () => {
+      const p = new PluralRules('fr', { maximumFractionDigits: 0 })
+      expect(p.selectRange(0, 1)).toBe('one')
+      expect(p.selectRange('1.0', '1.1')).toBe('one')
+      expect(p.selectRange(1, 2)).toBe('other')
+    })
+    test('should complain if start > end', () => {
+      const p = new PluralRules('en')
+      expect(() => p.selectRange(2, 1)).toThrow(RangeError)
+    })
+  })
 }
 
 describe('With native Intl.NumberFormat', () => suite(ActualPluralRules))
@@ -187,10 +230,12 @@ describe('With PseudoNumberFormat', () => {
   const getSelector = lc => Plurals[id(lc)]
   const getCategories = (lc, ord) =>
     Categories[id(lc)][ord ? 'ordinal' : 'cardinal']
+  const getRangeSelector = lc => RangePlurals[id(lc)]
   const PluralRules = getPluralRules(
     PseudoNumberFormat,
     getSelector,
-    getCategories
+    getCategories,
+    getRangeSelector
   )
   suite(PluralRules)
 })

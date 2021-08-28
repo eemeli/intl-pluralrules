@@ -43,7 +43,8 @@ const getType = type => {
 export default function getPluralRules(
   NumberFormat,
   getSelector,
-  getCategories
+  getCategories,
+  getRangeSelector
 ) {
   const findLocale = locale => {
     do {
@@ -70,6 +71,7 @@ export default function getPluralRules(
     constructor(locales, opt = {}) {
       this._locale = resolveLocale(locales)
       this._select = getSelector(this._locale)
+      this._range = getRangeSelector(this._locale)
       this._type = getType(opt.type)
       this._nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
     }
@@ -80,7 +82,8 @@ export default function getPluralRules(
         minimumFractionDigits,
         maximumFractionDigits,
         minimumSignificantDigits,
-        maximumSignificantDigits
+        maximumSignificantDigits,
+        roundingPriority
       } = this._nf.resolvedOptions()
       const opt = {
         locale: this._locale,
@@ -88,6 +91,7 @@ export default function getPluralRules(
         minimumFractionDigits,
         maximumFractionDigits,
         pluralCategories: getCategories(this._locale, this._type === 'ordinal'),
+        roundingPriority: roundingPriority || 'auto',
         type: this._type
       }
       if (typeof minimumSignificantDigits === 'number') {
@@ -104,6 +108,16 @@ export default function getPluralRules(
       if (!isFinite(number)) return 'other'
       const fmt = this._nf.format(Math.abs(number))
       return this._select(fmt, this._type === 'ordinal')
+    }
+
+    selectRange(start, end) {
+      if (!(this instanceof PluralRules))
+        throw new TypeError(`selectRange() called on incompatible ${this}`)
+      if (typeof start !== 'number') start = Number(start)
+      if (typeof end !== 'number') end = Number(end)
+      if (!isFinite(start) || !isFinite(end) || start > end)
+        throw new RangeError('start and end must be finite, with end >= start')
+      return this._range(this.select(start), this.select(end))
     }
   }
 

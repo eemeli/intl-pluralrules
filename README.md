@@ -1,10 +1,14 @@
 # intl-pluralrules
 
-A spec-compliant implementation & polyfill for [Intl.PluralRules]. Particularly
-useful if you need proper support for [`minimumFractionDigits`], which are only
-supported in Chrome 77 & later.
+A spec-compliant implementation & polyfill for [Intl.PluralRules],
+including the `selectRange(start, end)` method introduced in [Intl.NumberFormat v3].
+Also useful if you need proper support for [`minimumFractionDigits`],
+which are only supported in Chrome 77 & later.
+
+For a polyfill without `selectRange()`, please use `intl-pluralrules@1`.
 
 [intl.pluralrules]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules
+[intl.numberformat v3]: https://github.com/tc39/proposal-intl-numberformat-v3/
 [`minimumfractiondigits`]: https://bugs.chromium.org/p/v8/issues/detail?id=8866
 
 ## Installation
@@ -22,9 +26,10 @@ available in your environment:
 import 'intl-pluralrules'
 ```
 
-If `Intl.PluralRules` already exists and supports
-[multiple locales](https://nodejs.org/api/intl.html), the polyfill will not be
-loaded. Full support for `minimumFractionDigits` is not checked.
+If `Intl.PluralRules` already exists,
+includes a `selectRange()` method,
+and supports [multiple locales](https://nodejs.org/api/intl.html),
+the polyfill will not be loaded.
 
 ## Ponyfill
 
@@ -37,6 +42,8 @@ import PluralRules from 'intl-pluralrules/plural-rules'
 
 new PluralRules('en').select(1) // 'one'
 new PluralRules('en', { minimumSignificantDigits: 3 }).select(1) // 'other'
+new PluralRules('en').selectRange(0, 1) // 'other'
+new PluralRules('fr').selectRange(0, 1) // 'one'
 ```
 
 ## Factory
@@ -50,13 +57,14 @@ PluralRules class with locale support limited to only what you actually use.
 [make-plural]: https://www.npmjs.com/package/make-plural
 
 Thanks to tree-shaking, this example that only supports English and French
-minifies & gzips to 1619 bytes. Do note that this size difference is only
+minifies & gzips to 1472 bytes. Do note that this size difference is only
 apparent with minified production builds.
 
 ```js
 import getPluralRules from 'intl-pluralrules/factory'
 import { en, fr } from 'make-plural/plurals'
 import { en as enCat, fr as frCat } from 'make-plural/pluralCategories'
+import { en as enRange, fr as frRange } from 'make-plural/ranges'
 
 const sel = { en, fr }
 const getSelector = lc => sel[lc]
@@ -64,16 +72,21 @@ const getSelector = lc => sel[lc]
 const cat = { en: enCat, fr: frCat }
 const getCategories = (lc, ord) => cat[lc][ord ? 'ordinal' : 'cardinal']
 
+const range = { en: enRange, fr: frRange }
+const getRangeSelector = (lc) => range[lc]
+
 const PluralRules = getPluralRules(
   Intl.NumberFormat, // Not available in IE 10
   getSelector,
-  getCategories
+  getCategories,
+  getRangeSelector
 )
 export default PluralRules
 ```
 
-All arguments of `getPluralRules(NumberFormat, getSelector, getCategories)` are
-required.
+All arguments of
+`getPluralRules(NumberFormat, getSelector, getCategories, getRangeSelector)`
+are required.
 
 - `NumberFormat` should be `Intl.NumberFormat`, or a minimal implementation
   such as the one available at `intl-pluralrules/pseudo-number-format`. It
@@ -88,3 +101,6 @@ required.
   for the locale, either for cardinals (by default), or ordinals if `ord` is
   true. This function will be called only with values for which `getSelector`
   returns a function.
+- `getRangeSelector(lc)` should return a `function(start, end)` returning the
+  plural category of the range. `start` and `end` are the plural categories of
+  the corresponding values.
