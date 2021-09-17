@@ -25,11 +25,7 @@ export default [
     context: 'this',
     external: ['./factory', './pseudo-number-format'],
     output: { file: 'plural-rules.js', format: 'cjs', exports: 'default' },
-    plugins: [
-      resolve({ extensions: ['.js'] }),
-      commonjs(),
-      babel({ exclude: 'node_modules/**' })
-    ]
+    plugins: [resolve({ extensions: ['.js'] }), commonjs(), babel()]
   },
   {
     input: 'src/polyfill.mjs',
