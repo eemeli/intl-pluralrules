@@ -1,4 +1,4 @@
-import babel from 'rollup-plugin-babel'
+import babel from '@rollup/plugin-babel'
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 
@@ -13,12 +13,12 @@ export default [
   {
     input: 'src/factory.mjs',
     output: { file: 'factory.mjs', format: 'es' },
-    plugins: [babel()]
+    plugins: [babel({ babelHelpers: 'bundled' })]
   },
   {
     input: 'src/factory.mjs',
     output: { file: 'factory.js', format: 'cjs', exports: 'default' },
-    plugins: [babel()]
+    plugins: [babel({ babelHelpers: 'bundled' })]
   },
   {
     input: 'src/plural-rules.mjs',
@@ -28,7 +28,7 @@ export default [
     plugins: [
       resolve({ extensions: ['.js'] }),
       commonjs(),
-      babel({ exclude: 'node_modules/**' })
+      babel({ babelHelpers: 'bundled' })
     ]
   },
   {
@@ -36,7 +36,7 @@ export default [
     context: 'this',
     external: ['./plural-rules'],
     output: { file: 'polyfill.js', format: 'cjs' },
-    plugins: [babel()]
+    plugins: [babel({ babelHelpers: 'bundled' })]
   },
   {
     input: 'src/pseudo-number-format.mjs',
@@ -45,6 +45,6 @@ export default [
       format: 'cjs',
       exports: 'default'
     },
-    plugins: [babel()]
+    plugins: [babel({ babelHelpers: 'bundled' })]
   }
 ]
