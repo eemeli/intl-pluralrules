@@ -78,12 +78,12 @@ function suite(PluralRules) {
       expect(opt.locale).toMatch(/^pt\b/)
     })
     test('should choose a locale correctly from multiple choices', () => {
-      const p = new PluralRules(['i-klingon', 'in', 'en'])
+      const p = new PluralRules(['tlh', 'id', 'en'])
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
       const opt = p.resolvedOptions()
       expect(opt.type).toBe('cardinal')
-      expect(opt.locale).toBe('in')
+      expect(opt.locale).toBe('id')
     })
     test('should complain about invalid types', () => {
       const fn = () => new PluralRules('en', { type: 'invalid' })
