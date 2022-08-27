@@ -41,6 +41,9 @@
   "react-native": {
     "./factory": "./factory.js"
   },
+  "browserslist": [
+    "> 0.25%, not dead"
+  ],
   "jest": {
     "collectCoverage": true,
     "moduleFileExtensions": [
