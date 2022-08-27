@@ -88,17 +88,20 @@ export default function getPluralRules(
       } = this._nf.resolvedOptions()
       const opt = {
         locale: this._locale,
+        type: this._type,
         minimumIntegerDigits,
         minimumFractionDigits,
-        maximumFractionDigits,
-        pluralCategories: getCategories(this._locale, this._type === 'ordinal'),
-        roundingPriority: roundingPriority || 'auto',
-        type: this._type
+        maximumFractionDigits
       }
       if (typeof minimumSignificantDigits === 'number') {
         opt.minimumSignificantDigits = minimumSignificantDigits
         opt.maximumSignificantDigits = maximumSignificantDigits
       }
+      opt.pluralCategories = getCategories(
+        this._locale,
+        this._type === 'ordinal'
+      )
+      opt.roundingPriority = roundingPriority || 'auto'
       return opt
     }
 
