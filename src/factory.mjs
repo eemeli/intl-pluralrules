@@ -41,6 +41,17 @@ const getType = opt => {
   throw new RangeError('Not a valid plural type: ' + JSON.stringify(type))
 }
 
+function toNumber(value) {
+  switch (typeof value) {
+    case 'number':
+      return value
+    case 'bigint':
+      throw new TypeError('Cannot convert a BigInt value to a number')
+    default:
+      return Number(value)
+  }
+}
+
 export default function getPluralRules(
   NumberFormat,
   getSelector,
@@ -123,11 +134,11 @@ export default function getPluralRules(
     selectRange(start, end) {
       if (!(this instanceof PluralRules))
         throw new TypeError(`selectRange() called on incompatible ${this}`)
-      if (typeof start !== 'number') start = Number(start)
-      if (typeof end !== 'number') end = Number(end)
-      if (!isFinite(start) || !isFinite(end) || start > end)
+      const start_ = toNumber(start)
+      const end_ = toNumber(end)
+      if (!isFinite(start_) || !isFinite(end_) || start_ > end_)
         throw new RangeError('start and end must be finite, with end >= start')
-      return this.#range(this.select(start), this.select(end))
+      return this.#range(this.select(start_), this.select(end_))
     }
   }
 
