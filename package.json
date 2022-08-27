@@ -86,6 +86,6 @@
     "prepublishOnly": "npm test && npm run build",
     "test": "jest",
     "pretest262": "rollup -c rollup.test262.js",
-    "test262": "test262-harness --error-for-failures --prelude test262-prelude.js 'test262/test/intl402/PluralRules/**/*.js'"
+    "test262": "test262-harness --error-for-failures --features-exclude cross-realm --prelude test262-prelude.js 'test262/test/intl402/PluralRules/**/*.js'"
   }
 }
