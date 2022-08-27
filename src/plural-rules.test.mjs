@@ -214,9 +214,20 @@ function suite(PluralRules) {
       expect(p.selectRange('1.0', '1.1')).toBe('one')
       expect(p.selectRange(1, 2)).toBe('other')
     })
-    test('should complain if start > end', () => {
+    test('should complain about undefined values', () => {
       const p = new PluralRules('en')
-      expect(() => p.selectRange(2, 1)).toThrow(RangeError)
+      expect(() => p.selectRange(undefined, 2)).toThrow(TypeError)
+      expect(() => p.selectRange(2, undefined)).toThrow(TypeError)
+    })
+    test('should complain about BigInt values', () => {
+      const p = new PluralRules('en')
+      expect(() => p.selectRange(2, 1n)).toThrow(TypeError)
+      expect(() => p.selectRange(2n, 1)).toThrow(TypeError)
+    })
+    test('should complain about non-numeric values', () => {
+      const p = new PluralRules('en')
+      expect(() => p.selectRange('x', 2)).toThrow(RangeError)
+      expect(() => p.selectRange(2, 'x')).toThrow(RangeError)
     })
   })
 }
