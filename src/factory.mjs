@@ -69,7 +69,7 @@ export default function getPluralRules(
       return canonicalizeLocaleList(locales).filter(findLocale)
     }
 
-    constructor(locales, opt = {}) {
+    constructor(locales = [], opt = {}) {
       this._locale = resolveLocale(locales)
       this._select = getSelector(this._locale)
       this._range = getRangeSelector(this._locale)
