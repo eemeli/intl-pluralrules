@@ -138,8 +138,8 @@ export default function getPluralRules(
       if (end === undefined) throw new TypeError('end is undefined')
       const start_ = toNumber(start)
       const end_ = toNumber(end)
-      if (!isFinite(start_) || !isFinite(end_) || start_ > end_)
-        throw new RangeError('start and end must be finite, with end >= start')
+      if (!isFinite(start_)) throw new RangeError('start must be finite')
+      if (!isFinite(end_)) throw new RangeError('end must be finite')
       return this.#range(this.select(start_), this.select(end_))
     }
   }
