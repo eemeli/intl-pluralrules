@@ -75,7 +75,8 @@
     "jest": "^27.0.6",
     "make-plural": "^7.0.0",
     "rollup": "^2.26.5",
-    "rollup-plugin-terser": "^7.0.0"
+    "rollup-plugin-terser": "^7.0.0",
+    "test262-harness": "^10.0.0"
   },
   "scripts": {
     "build": "rollup -c",
