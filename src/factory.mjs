@@ -34,7 +34,8 @@ const defaultLocale = () =>
     (navigator.userLanguage || navigator.language)) ||
   'en-US'
 
-const getType = type => {
+const getType = opt => {
+  const type = Object.prototype.hasOwnProperty.call(opt, 'type') && opt.type
   if (!type) return 'cardinal'
   if (type === 'cardinal' || type === 'ordinal') return type
   throw new RangeError('Not a valid plural type: ' + JSON.stringify(type))
@@ -72,7 +73,7 @@ export default function getPluralRules(
       this._locale = resolveLocale(locales)
       this._select = getSelector(this._locale)
       this._range = getRangeSelector(this._locale)
-      this._type = getType(opt.type)
+      this._type = getType(opt)
       this._nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
     }
 
