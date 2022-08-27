@@ -134,6 +134,8 @@ export default function getPluralRules(
     selectRange(start, end) {
       if (!(this instanceof PluralRules))
         throw new TypeError(`selectRange() called on incompatible ${this}`)
+      if (start === undefined) throw new TypeError('start is undefined')
+      if (end === undefined) throw new TypeError('end is undefined')
       const start_ = toNumber(start)
       const end_ = toNumber(end)
       if (!isFinite(start_) || !isFinite(end_) || start_ > end_)
