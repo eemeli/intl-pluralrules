@@ -1,5 +1,3 @@
-/** @jest-environment jsdom */
-
 import * as Plurals from 'make-plural/plurals'
 import * as Categories from 'make-plural/pluralCategories'
 import * as RangePlurals from 'make-plural/ranges'
