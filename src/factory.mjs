@@ -69,12 +69,18 @@ export default function getPluralRules(
       return canonicalizeLocaleList(locales).filter(findLocale)
     }
 
+    #locale
+    #range
+    #select
+    #type
+    #nf
+
     constructor(locales = [], opt = {}) {
-      this._locale = resolveLocale(locales)
-      this._select = getSelector(this._locale)
-      this._range = getRangeSelector(this._locale)
-      this._type = getType(opt)
-      this._nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
+      this.#locale = resolveLocale(locales)
+      this.#select = getSelector(this.#locale)
+      this.#range = getRangeSelector(this.#locale)
+      this.#type = getType(opt)
+      this.#nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
     }
 
     resolvedOptions() {
@@ -85,10 +91,10 @@ export default function getPluralRules(
         minimumSignificantDigits,
         maximumSignificantDigits,
         roundingPriority
-      } = this._nf.resolvedOptions()
+      } = this.#nf.resolvedOptions()
       const opt = {
-        locale: this._locale,
-        type: this._type,
+        locale: this.#locale,
+        type: this.#type,
         minimumIntegerDigits,
         minimumFractionDigits,
         maximumFractionDigits
@@ -98,8 +104,8 @@ export default function getPluralRules(
         opt.maximumSignificantDigits = maximumSignificantDigits
       }
       opt.pluralCategories = getCategories(
-        this._locale,
-        this._type === 'ordinal'
+        this.#locale,
+        this.#type === 'ordinal'
       ).slice(0)
       opt.roundingPriority = roundingPriority || 'auto'
       return opt
@@ -110,8 +116,8 @@ export default function getPluralRules(
         throw new TypeError(`select() called on incompatible ${this}`)
       if (typeof number !== 'number') number = Number(number)
       if (!isFinite(number)) return 'other'
-      const fmt = this._nf.format(Math.abs(number))
-      return this._select(fmt, this._type === 'ordinal')
+      const fmt = this.#nf.format(Math.abs(number))
+      return this.#select(fmt, this.#type === 'ordinal')
     }
 
     selectRange(start, end) {
@@ -121,7 +127,7 @@ export default function getPluralRules(
       if (typeof end !== 'number') end = Number(end)
       if (!isFinite(start) || !isFinite(end) || start > end)
         throw new RangeError('start and end must be finite, with end >= start')
-      return this._range(this.select(start), this.select(end))
+      return this.#range(this.select(start), this.select(end))
     }
   }
 
