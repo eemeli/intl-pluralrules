@@ -100,7 +100,7 @@ export default function getPluralRules(
       opt.pluralCategories = getCategories(
         this._locale,
         this._type === 'ordinal'
-      )
+      ).slice(0)
       opt.roundingPriority = roundingPriority || 'auto'
       return opt
     }
