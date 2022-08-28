@@ -59,7 +59,7 @@ function suite(PluralRules) {
       expect(opt.locale.length).toBeGreaterThan(1)
     })
     test('should handle valid simple arguments correctly', () => {
-      const p = new PluralRules('pt-PT', { type: 'ordinal' })
+      const p = new PluralRules('PT-PT', { type: 'ordinal' })
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
       const opt = p.resolvedOptions()
@@ -67,7 +67,7 @@ function suite(PluralRules) {
       expect(opt.locale).toMatch(/^pt\b/)
     })
     test('should choose a locale correctly from multiple choices', () => {
-      const p = new PluralRules(['tlh', 'id', 'en'])
+      const p = new PluralRules(['tlh', 'IN', 'en'])
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
       const opt = p.resolvedOptions()
@@ -215,7 +215,7 @@ function suite(PluralRules) {
 describe('With native Intl.NumberFormat', () => suite(ActualPluralRules))
 
 describe('With PseudoNumberFormat', () => {
-  const id = lc => (lc === 'in' ? '_in' : lc === 'pt-PT' ? 'pt_PT' : lc)
+  const id = lc => (lc === 'pt-PT' ? 'pt_PT' : lc)
   const getSelector = lc => Plurals[id(lc)]
   const getCategories = (lc, ord) =>
     Categories[id(lc)][ord ? 'ordinal' : 'cardinal']
