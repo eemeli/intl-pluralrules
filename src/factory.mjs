@@ -12,7 +12,6 @@ const canonicalizeLocaleList = locales => {
       const msg = `Locales should be strings, ${JSON.stringify(tag)} isn't.`
       throw new TypeError(msg)
     }
-    if (tag[0] === '*') continue
 
     const parts = tag.split('-')
 

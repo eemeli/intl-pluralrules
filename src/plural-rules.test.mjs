@@ -25,11 +25,6 @@ function suite(PluralRules) {
       const res = PluralRules.supportedLocalesOf(locales)
       expect(res).toMatchObject(locales)
     })
-    test('should ignore wildcards', () => {
-      const locales = ['en', '*', '*-foo', 'fi-FI']
-      const res = PluralRules.supportedLocalesOf(locales)
-      expect(res).toMatchObject(['en', 'fi-FI'])
-    })
     test('should accept String objects', () => {
       const res = PluralRules.supportedLocalesOf(new String('en'))
       expect(res).toMatchObject(['en'])
@@ -41,6 +36,7 @@ function suite(PluralRules) {
     test('should complain about bad tags', () => {
       expect(() => PluralRules.supportedLocalesOf('en-')).toThrow(RangeError)
       expect(() => PluralRules.supportedLocalesOf('-en')).toThrow(RangeError)
+      expect(() => PluralRules.supportedLocalesOf('*-en')).toThrow(RangeError)
     })
   })
 
