@@ -27,13 +27,6 @@ const canonicalizeLocaleList = locales => {
   return Object.keys(res)
 }
 
-const defaultLocale = () =>
-  /* istanbul ignore next */
-  (typeof navigator !== 'undefined' &&
-    navigator &&
-    (navigator.userLanguage || navigator.language)) ||
-  'en-US'
-
 const getType = type => {
   if (!type) return 'cardinal'
   if (type === 'cardinal' || type === 'ordinal') return type
@@ -60,7 +53,8 @@ export default function getPluralRules(
       const lc = findLocale(canonicalLocales[i])
       if (lc) return lc
     }
-    return findLocale(defaultLocale())
+    const lc = new NumberFormat().resolvedOptions().locale
+    return findLocale(lc)
   }
 
   class PluralRules {

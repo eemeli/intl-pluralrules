@@ -58,17 +58,6 @@ function suite(PluralRules) {
       expect(typeof opt.locale).toBe('string')
       expect(opt.locale.length).toBeGreaterThan(1)
     })
-    test('should use navigator.language for default locale', () => {
-      const spy = jest.spyOn(navigator, 'language', 'get')
-      try {
-        spy.mockReturnValue('fi-FI')
-        const p = new PluralRules()
-        const opt = p.resolvedOptions()
-        expect(opt.locale).toMatch(/^fi\b/)
-      } finally {
-        spy.mockRestore()
-      }
-    })
     test('should handle valid simple arguments correctly', () => {
       const p = new PluralRules('pt-PT', { type: 'ordinal' })
       expect(p).toBeInstanceOf(Object)
@@ -238,4 +227,54 @@ describe('With PseudoNumberFormat', () => {
     getRangeSelector
   )
   suite(PluralRules)
+
+  describe('default locale', () => {
+    test('should use same default locale as other Intl formatters', () => {
+      const Intl_ = global.Intl
+      try {
+        class MockFormat {
+          resolvedOptions = () => ({ locale: 'fi-FI' })
+        }
+        global.Intl = { DateTimeFormat: MockFormat, NumberFormat: MockFormat }
+        const p = new PluralRules()
+        const opt = p.resolvedOptions()
+        expect(opt.locale).toMatch(/^fi\b/)
+      } finally {
+        global.Intl = Intl_
+      }
+    })
+    test('should use navigator.language as fallback', () => {
+      const Intl_ = global.Intl
+      const spy = jest.spyOn(navigator, 'language', 'get')
+      try {
+        delete global.Intl
+        spy.mockReturnValue('fi-FI')
+        const p0 = new PluralRules()
+        const opt0 = p0.resolvedOptions()
+        expect(opt0.locale).toMatch(/^fi\b/)
+
+        spy.mockReturnValue(undefined)
+        const p1 = new PluralRules()
+        const opt1 = p1.resolvedOptions()
+        expect(opt1.locale).toMatch(/^en\b/)
+      } finally {
+        global.Intl = Intl_
+        spy.mockRestore()
+      }
+    })
+    test('should use "en-US" as ultimate fallback', () => {
+      const Intl_ = global.Intl
+      const navigator_ = global.navigator
+      try {
+        delete global.Intl
+        delete global.navigator
+        const p2 = new PluralRules()
+        const opt2 = p2.resolvedOptions()
+        expect(opt2.locale).toMatch(/^en\b/)
+      } finally {
+        global.Intl = Intl_
+        global.navigator = navigator_
+      }
+    })
+  })
 })
