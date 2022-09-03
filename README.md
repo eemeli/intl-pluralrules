@@ -73,7 +73,7 @@ const cat = { en: enCat, fr: frCat }
 const getCategories = (lc, ord) => cat[lc][ord ? 'ordinal' : 'cardinal']
 
 const range = { en: enRange, fr: frRange }
-const getRangeSelector = (lc) => range[lc]
+const getRangeSelector = lc => range[lc]
 
 const PluralRules = getPluralRules(
   Intl.NumberFormat, // Not available in IE 10
@@ -88,9 +88,8 @@ All arguments of
 `getPluralRules(NumberFormat, getSelector, getCategories, getRangeSelector)`
 are required.
 
-- `NumberFormat` should be `Intl.NumberFormat`, or a minimal implementation
-  such as the one available at `intl-pluralrules/pseudo-number-format`. It
-  should at least support the `"en"` locale and all of the min/max digit count
+- `NumberFormat` should be `Intl.NumberFormat`, or an implementation which
+  supports at least the `"en"` locale and all of the min/max digit count
   options.
 - `getSelector(lc)` should return a `function(n, ord)` returning the plural
   category of `n`, using cardinal plural rules (by default), or ordinal rules if

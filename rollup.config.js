@@ -22,8 +22,7 @@ export default [
   },
   {
     input: 'src/plural-rules.mjs',
-    context: 'this',
-    external: ['./factory.mjs', './pseudo-number-format.mjs'],
+    external: ['./factory.mjs'],
     output: {
       file: 'plural-rules.js',
       format: 'cjs',
@@ -44,15 +43,6 @@ export default [
       file: 'polyfill.js',
       format: 'cjs',
       paths: id => id.replace(/^.*\/([^/]+)\.mjs$/, './$1.js')
-    },
-    plugins: [babel({ babelHelpers: 'bundled' })]
-  },
-  {
-    input: 'src/pseudo-number-format.mjs',
-    output: {
-      file: 'pseudo-number-format.js',
-      format: 'cjs',
-      exports: 'default'
     },
     plugins: [babel({ babelHelpers: 'bundled' })]
   }
