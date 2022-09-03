@@ -23,8 +23,13 @@ export default [
   {
     input: 'src/plural-rules.mjs',
     context: 'this',
-    external: ['./factory', './pseudo-number-format'],
-    output: { file: 'plural-rules.js', format: 'cjs', exports: 'default' },
+    external: ['./factory.mjs', './pseudo-number-format.mjs'],
+    output: {
+      file: 'plural-rules.js',
+      format: 'cjs',
+      exports: 'default',
+      paths: id => id.replace(/^.*\/([^/]+)\.mjs$/, './$1.js')
+    },
     plugins: [
       resolve({ extensions: ['.js'] }),
       commonjs(),
@@ -34,8 +39,12 @@ export default [
   {
     input: 'src/polyfill.mjs',
     context: 'this',
-    external: ['./plural-rules'],
-    output: { file: 'polyfill.js', format: 'cjs' },
+    external: ['./plural-rules.mjs'],
+    output: {
+      file: 'polyfill.js',
+      format: 'cjs',
+      paths: id => id.replace(/^.*\/([^/]+)\.mjs$/, './$1.js')
+    },
     plugins: [babel({ babelHelpers: 'bundled' })]
   },
   {

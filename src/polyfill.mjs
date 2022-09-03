@@ -1,4 +1,4 @@
-import PluralRules from './plural-rules'
+import PluralRules from './plural-rules.mjs'
 
 if (typeof Intl === 'undefined') {
   if (typeof global !== 'undefined') {

@@ -1,8 +1,9 @@
 import * as P from 'make-plural/plurals'
 import * as C from 'make-plural/pluralCategories'
 import * as R from 'make-plural/ranges'
-import getPluralRules from './factory'
-import PseudoNumberFormat from './pseudo-number-format'
+
+import getPluralRules from './factory.mjs'
+import PseudoNumberFormat from './pseudo-number-format.mjs'
 
 // In a .mjs context, CommonJS imports only expose the default endpoint. We're
 // using them here because with this many small functions, bundlers produce less

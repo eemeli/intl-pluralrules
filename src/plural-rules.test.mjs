@@ -1,9 +1,10 @@
 import * as Plurals from 'make-plural/plurals'
 import * as Categories from 'make-plural/pluralCategories'
 import * as RangePlurals from 'make-plural/ranges'
-import getPluralRules from './factory'
-import ActualPluralRules from './plural-rules'
-import PseudoNumberFormat from './pseudo-number-format'
+
+import getPluralRules from './factory.mjs'
+import ActualPluralRules from './plural-rules.mjs'
+import PseudoNumberFormat from './pseudo-number-format.mjs'
 
 function suite(PluralRules) {
   test('should exist', () => {
