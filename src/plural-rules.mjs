@@ -12,8 +12,8 @@ const Plurals = P.default || P
 const Categories = C.default || C
 const RangePlurals = R.default || R
 
-/* istanbul ignore next */
 const NumberFormat =
+  /* c8 ignore next */
   (typeof Intl === 'object' && Intl.NumberFormat) || PseudoNumberFormat
 
 // make-plural exports are cast with safe-identifier to be valid JS identifiers
