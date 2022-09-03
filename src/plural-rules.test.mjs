@@ -7,32 +7,32 @@ import ActualPluralRules from './plural-rules.mjs'
 import PseudoNumberFormat from './pseudo-number-format.mjs'
 
 function suite(PluralRules) {
-  test('should exist', () => {
+  it('should exist', () => {
     expect(PluralRules).toBeInstanceOf(Function)
   })
 
   describe('.supportedLocalesOf()', () => {
-    test('should be executable', () => {
+    it('should be executable', () => {
       expect(() => PluralRules.supportedLocalesOf).not.toThrow()
     })
-    test('should return an empty array when called with no args', () => {
+    it('should return an empty array when called with no args', () => {
       const res = PluralRules.supportedLocalesOf()
       expect(res).toMatchObject([])
     })
-    test('should return a valid array', () => {
+    it('should return a valid array', () => {
       const locales = ['en', 'fi-FI']
       const res = PluralRules.supportedLocalesOf(locales)
       expect(res).toMatchObject(locales)
     })
-    test('should accept String objects', () => {
+    it('should accept String objects', () => {
       const res = PluralRules.supportedLocalesOf(new String('en'))
       expect(res).toMatchObject(['en'])
     })
-    test('should complain about non-strings', () => {
+    it('should complain about non-strings', () => {
       expect(() => PluralRules.supportedLocalesOf(['en', 3])).toThrow(TypeError)
       expect(() => PluralRules.supportedLocalesOf([null])).toThrow(TypeError)
     })
-    test('should complain about bad tags', () => {
+    it('should complain about bad tags', () => {
       expect(() => PluralRules.supportedLocalesOf('en-')).toThrow(RangeError)
       expect(() => PluralRules.supportedLocalesOf('-en')).toThrow(RangeError)
       expect(() => PluralRules.supportedLocalesOf('*-en')).toThrow(RangeError)
@@ -40,11 +40,11 @@ function suite(PluralRules) {
   })
 
   describe('constructor', () => {
-    test('should require `new`', () => {
+    it('should require `new`', () => {
       expect(() => PluralRules()).toThrow(TypeError)
       expect(() => new PluralRules()).not.toThrow()
     })
-    test('should select a default type & locale', () => {
+    it('should select a default type & locale', () => {
       const p = new PluralRules()
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
@@ -53,7 +53,7 @@ function suite(PluralRules) {
       expect(typeof opt.locale).toBe('string')
       expect(opt.locale.length).toBeGreaterThan(1)
     })
-    test('should handle valid simple arguments correctly', () => {
+    it('should handle valid simple arguments correctly', () => {
       const p = new PluralRules('PT-PT', { type: 'ordinal' })
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
@@ -61,7 +61,7 @@ function suite(PluralRules) {
       expect(opt.type).toBe('ordinal')
       expect(opt.locale).toMatch(/^pt\b/)
     })
-    test('should choose a locale correctly from multiple choices', () => {
+    it('should choose a locale correctly from multiple choices', () => {
       const p = new PluralRules(['tlh', 'IN', 'en'])
       expect(p).toBeInstanceOf(Object)
       expect(p.select).toBeInstanceOf(Function)
@@ -69,20 +69,20 @@ function suite(PluralRules) {
       expect(opt.type).toBe('cardinal')
       expect(opt.locale).toBe('id')
     })
-    test('should complain about invalid types', () => {
+    it('should complain about invalid types', () => {
       const fn = () => new PluralRules('en', { type: 'invalid' })
       expect(fn).toThrow(RangeError)
     })
   })
 
   describe('#resolvedOptions()', () => {
-    test('should exist', () => {
+    it('should exist', () => {
       const p = new PluralRules()
       expect(p.resolvedOptions).toBeInstanceOf(Function)
     })
 
     // https://crbug.com/v8/10832
-    const test_ = process.version > 'v16' ? test : test.skip
+    const test_ = process.version > 'v16' ? it : it.skip
     test_('should return expected values', () => {
       const res = new PluralRules('fi-FI', {
         minimumIntegerDigits: 2,
@@ -101,15 +101,15 @@ function suite(PluralRules) {
   })
 
   describe('#select()', () => {
-    test('should return a string', () => {
+    it('should return a string', () => {
       const res = new PluralRules().select()
       expect(res).toBe('other')
     })
-    test('should complain if bound', () => {
+    it('should complain if bound', () => {
       const p = new PluralRules()
       expect(p.select.bind(null)).toThrow(TypeError)
     })
-    test('should work for English cardinals', () => {
+    it('should work for English cardinals', () => {
       const p = new PluralRules('en', { type: 'cardinal' })
       expect(p.select(1)).toBe('one')
       expect(p.select('1.0')).toBe('one')
@@ -117,47 +117,47 @@ function suite(PluralRules) {
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    test('should work for English ordinals', () => {
+    it('should work for English ordinals', () => {
       const p = new PluralRules('en', { type: 'ordinal' })
       expect(p.select(1)).toBe('one')
       expect(p.select('22')).toBe('two')
       expect(p.select('3.0')).toBe('few')
       expect(p.select(11)).toBe('other')
     })
-    test('should work for Arabic', () => {
+    it('should work for Arabic', () => {
       const p = new PluralRules('ar-SA')
       expect(p.select(0)).toBe('zero')
       expect(p.select(1)).toBe('one')
     })
-    test('should work with minimumFractionDigits: 1', () => {
+    it('should work with minimumFractionDigits: 1', () => {
       const p = new PluralRules('en', { minimumFractionDigits: 1 })
       expect(p.select(1)).toBe('other')
       expect(p.select('1.0')).toBe('other')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    test('should work with maximumFractionDigits: 0', () => {
+    it('should work with maximumFractionDigits: 0', () => {
       const p = new PluralRules('en', { maximumFractionDigits: 0 })
       expect(p.select(1)).toBe('one')
       expect(p.select('1.1')).toBe('one')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    test('should work with minimumSignificantDigits: 2', () => {
+    it('should work with minimumSignificantDigits: 2', () => {
       const p = new PluralRules('en', { minimumSignificantDigits: 2 })
       expect(p.select(1)).toBe('other')
       expect(p.select('1.0')).toBe('other')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    test('should work with maximumSignificantDigits: 1', () => {
+    it('should work with maximumSignificantDigits: 1', () => {
       const p = new PluralRules('en', { maximumSignificantDigits: 1 })
       expect(p.select(1)).toBe('one')
       expect(p.select('1.1')).toBe('one')
       expect(p.select(2)).toBe('other')
       expect(p.select('-2.0')).toBe('other')
     })
-    test('should work with "," as decimal separator', () => {
+    it('should work with "," as decimal separator', () => {
       const p0 = new PluralRules('cs', { minimumFractionDigits: 0 })
       const p1 = new PluralRules('cs', { minimumFractionDigits: 1 })
       expect(p0.select(1)).toBe('one')
@@ -168,49 +168,49 @@ function suite(PluralRules) {
   })
 
   describe('#selectRange()', () => {
-    test('should return a string', () => {
+    it('should return a string', () => {
       const res = new PluralRules().selectRange(0, 1)
       expect(res).toBe('other')
     })
-    test('should complain if bound', () => {
+    it('should complain if bound', () => {
       const p = new PluralRules()
       expect(p.selectRange.bind(null)).toThrow(TypeError)
     })
-    test('should work for English', () => {
+    it('should work for English', () => {
       const p = new PluralRules('en')
       expect(p.selectRange(0, 1)).toBe('other')
       expect(p.selectRange('0.0', '1.0')).toBe('other')
       expect(p.selectRange(1, 2)).toBe('other')
     })
-    test('should work for French', () => {
+    it('should work for French', () => {
       const p = new PluralRules('fr')
       expect(p.selectRange(0, 1)).toBe('one')
       expect(p.selectRange('0.0', '1.0')).toBe('one')
       expect(p.selectRange(1, 2)).toBe('other')
     })
-    test('should work with minimumFractionDigits: 1', () => {
+    it('should work with minimumFractionDigits: 1', () => {
       const p = new PluralRules('fr', { minimumFractionDigits: 1 })
       expect(p.selectRange(0, 1)).toBe('one')
       expect(p.selectRange('0.0', '1.0')).toBe('one')
       expect(p.selectRange(1, 2)).toBe('other')
     })
-    test('should work with maximumFractionDigits: 0', () => {
+    it('should work with maximumFractionDigits: 0', () => {
       const p = new PluralRules('fr', { maximumFractionDigits: 0 })
       expect(p.selectRange(0, 1)).toBe('one')
       expect(p.selectRange('1.0', '1.1')).toBe('one')
       expect(p.selectRange(1, 2)).toBe('other')
     })
-    test('should complain about undefined values', () => {
+    it('should complain about undefined values', () => {
       const p = new PluralRules('en')
       expect(() => p.selectRange(undefined, 2)).toThrow(TypeError)
       expect(() => p.selectRange(2, undefined)).toThrow(TypeError)
     })
-    test('should complain about BigInt values', () => {
+    it('should complain about BigInt values', () => {
       const p = new PluralRules('en')
       expect(() => p.selectRange(2, 1n)).toThrow(TypeError)
       expect(() => p.selectRange(2n, 1)).toThrow(TypeError)
     })
-    test('should complain about non-numeric values', () => {
+    it('should complain about non-numeric values', () => {
       const p = new PluralRules('en')
       expect(() => p.selectRange('x', 2)).toThrow(RangeError)
       expect(() => p.selectRange(2, 'x')).toThrow(RangeError)
@@ -235,7 +235,7 @@ describe('With PseudoNumberFormat', () => {
   suite(PluralRules)
 
   describe('default locale', () => {
-    test('should use same default locale as other Intl formatters', () => {
+    it('should use same default locale as other Intl formatters', () => {
       const Intl_ = global.Intl
       try {
         class MockFormat {
@@ -249,7 +249,7 @@ describe('With PseudoNumberFormat', () => {
         global.Intl = Intl_
       }
     })
-    test('should use navigator.language as fallback', () => {
+    it('should use navigator.language as fallback', () => {
       const Intl_ = global.Intl
       const navigator_ = global.navigator
       try {
@@ -264,7 +264,7 @@ describe('With PseudoNumberFormat', () => {
         global.navigator = navigator_
       }
     })
-    test('should use "en-US" as ultimate fallback', () => {
+    it('should use "en-US" as ultimate fallback', () => {
       const Intl_ = global.Intl
       const navigator_ = global.navigator
       try {
