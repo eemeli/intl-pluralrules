@@ -3,5 +3,5 @@ node_modules
 /*.js
 /*.mjs
 /coverage
-/examples/dist
+dist/
 !/*.config.js

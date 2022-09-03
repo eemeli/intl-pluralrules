@@ -12,9 +12,9 @@ import commonjs from '@rollup/plugin-commonjs'
  */
 
 export default {
-  input: 'src/test262-prelude.mjs',
+  input: 'test/test262-prelude.mjs',
   context: 'this',
-  output: { file: 'test262-prelude.js', format: 'iife' },
+  output: { file: 'test/dist/test262-prelude.js', format: 'iife' },
   plugins: [
     resolve({ extensions: ['.js'] }),
     commonjs(),

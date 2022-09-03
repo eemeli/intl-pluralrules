@@ -1,0 +1,37 @@
+name: IE11
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: BrowserStack Env Setup
+        uses: browserstack/github-actions/setup-env@master
+        with:
+          username:  ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+
+      - name: BrowserStackLocal Start
+        uses: browserstack/github-actions/setup-local@master
+        with:
+          local-testing: start
+          local-identifier: random
+
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with: { node-version: 16.x }
+      - run: npm ci
+      - run: python -m http.server 8000 &
+
+      - run: npm run test:ie11
+
+      - name: BrowserStackLocal Stop
+        uses: browserstack/github-actions/setup-local@master
+        with:
+          local-testing: stop

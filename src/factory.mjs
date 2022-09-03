@@ -143,11 +143,13 @@ export default function getPluralRules(
     }
   }
 
-  Object.defineProperty(PluralRules.prototype, Symbol.toStringTag, {
-    value: 'Intl.PluralRules',
-    writable: false,
-    configurable: true
-  })
+  if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+    Object.defineProperty(PluralRules.prototype, Symbol.toStringTag, {
+      value: 'Intl.PluralRules',
+      writable: false,
+      configurable: true
+    })
+  }
   Object.defineProperty(PluralRules, 'prototype', { writable: false })
 
   return PluralRules

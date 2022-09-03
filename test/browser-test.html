@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>intl-pluralrules browser tests</title>
+
+    <script src="../node_modules/chai/chai.js"></script>
+    <script src="../node_modules/mocha-selenium-bridge/browser/reporter.js"></script>
+
+    <!-- Mocha v9 is last with IE 11 support: https://github.com/mochajs/mocha/discussions/4727 -->
+    <script src="https://unpkg.com/mocha@9.2.2/mocha.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/mocha@9.2.2/mocha.css" />
+
+    <script src="./dist/browser-plural-rules.js"></script>
+    <script src="./dist/browser-test-suite.js"></script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <script>
+      var isIE11 = !!window.MSInputMethodContext && !!document.documentMode
+      if (isIE11 || navigator.webdriver) mocha.reporter(Bridge)
+      mocha.setup('bdd')
+      prTests.suite(PluralRules)
+      mocha.run()
+    </script>
+  </body>
+</html>
