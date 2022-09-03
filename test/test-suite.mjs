@@ -78,8 +78,9 @@ export function suite(PluralRules) {
     })
 
     // https://crbug.com/v8/10832
-    const test_ = process.version > 'v16' ? it : it.skip
-    test_('should return expected values', () => {
+    const maybe =
+      typeof process === 'undefined' || process.version > 'v16' ? it : it.skip
+    maybe('should return expected values', () => {
       const res = new PluralRules('fi-FI', {
         minimumIntegerDigits: 2,
         minimumSignificantDigits: 3
@@ -201,15 +202,17 @@ export function suite(PluralRules) {
       expect(() => p.selectRange(undefined, 2)).to.throw(TypeError)
       expect(() => p.selectRange(2, undefined)).to.throw(TypeError)
     })
-    it('should complain about BigInt values', () => {
-      const p = new PluralRules('en')
-      expect(() => p.selectRange(2, 1n)).to.throw(TypeError)
-      expect(() => p.selectRange(2n, 1)).to.throw(TypeError)
-    })
     it('should complain about non-numeric values', () => {
       const p = new PluralRules('en')
       expect(() => p.selectRange('x', 2)).to.throw(RangeError)
       expect(() => p.selectRange(2, 'x')).to.throw(RangeError)
+    })
+
+    const maybe = typeof BigInt === 'undefined' ? it.skip : it
+    maybe('should complain about BigInt values', () => {
+      const p = new PluralRules('en')
+      expect(() => p.selectRange(2, BigInt(1))).to.throw(TypeError)
+      expect(() => p.selectRange(BigInt(2), 1)).to.throw(TypeError)
     })
   })
 }
