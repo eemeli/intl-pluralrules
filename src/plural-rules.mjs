@@ -3,7 +3,6 @@ import * as C from 'make-plural/pluralCategories'
 import * as R from 'make-plural/ranges'
 
 import getPluralRules from './factory.mjs'
-import PseudoNumberFormat from './pseudo-number-format.mjs'
 
 // In a .mjs context, CommonJS imports only expose the default endpoint. We're
 // using them here because with this many small functions, bundlers produce less
@@ -11,10 +10,6 @@ import PseudoNumberFormat from './pseudo-number-format.mjs'
 const Plurals = P.default || P
 const Categories = C.default || C
 const RangePlurals = R.default || R
-
-const NumberFormat =
-  /* c8 ignore next */
-  (typeof Intl === 'object' && Intl.NumberFormat) || PseudoNumberFormat
 
 // make-plural exports are cast with safe-identifier to be valid JS identifiers
 const id = lc => (lc === 'pt-PT' ? 'pt_PT' : lc)
@@ -25,7 +20,7 @@ const getCategories = (lc, ord) =>
 const getRangeSelector = lc => RangePlurals[id(lc)]
 
 const PluralRules = getPluralRules(
-  NumberFormat,
+  Intl.NumberFormat,
   getSelector,
   getCategories,
   getRangeSelector

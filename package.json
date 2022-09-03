@@ -16,7 +16,6 @@
   "files": [
     "factory.*",
     "plural-rules.*",
-    "pseudo-number-format.*",
     "polyfill.*"
   ],
   "type": "commonjs",
@@ -32,7 +31,6 @@
     ],
     "./plural-rules": "./plural-rules.js",
     "./polyfill": "./polyfill.js",
-    "./pseudo-number-format": "./pseudo-number-format.js",
     "./package.json": "./package.json"
   },
   "browser": {
