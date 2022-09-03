@@ -68,7 +68,7 @@
     "build": "rollup -c",
     "clean": "git clean -fdxe node_modules -e examples/node_modules",
     "prepublishOnly": "npm test && npm run build",
-    "test": "c8 mocha src/plural-rules.test.mjs",
+    "test": "c8 mocha test/*.test.mjs",
     "pretest262": "rollup -c rollup.test262.js",
     "test262": "test262-harness --error-for-failures --features-exclude cross-realm --prelude test262-prelude.js 'test262/test/intl402/PluralRules/**/*.js'"
   }
