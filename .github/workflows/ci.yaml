@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        node-version: [14.x, 16.x, 18.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -27,3 +27,14 @@ jobs:
         run: npm run build
       - working-directory: examples
         run: npm test
+
+  test262:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with: { submodules: true }
+      - uses: actions/setup-node@v1
+        with: { node-version: 18.x }
+      - run: npm ci
+      - run: npm run test262

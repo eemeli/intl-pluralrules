@@ -32,10 +32,22 @@ const canonicalizeLocaleList = locales => {
   return Object.keys(res)
 }
 
-const getType = type => {
+function getType(opt) {
+  const type = Object.prototype.hasOwnProperty.call(opt, 'type') && opt.type
   if (!type) return 'cardinal'
   if (type === 'cardinal' || type === 'ordinal') return type
   throw new RangeError('Not a valid plural type: ' + JSON.stringify(type))
+}
+
+function toNumber(value) {
+  switch (typeof value) {
+    case 'number':
+      return value
+    case 'bigint':
+      throw new TypeError('Cannot convert a BigInt value to a number')
+    default:
+      return Number(value)
+  }
 }
 
 export default function getPluralRules(
@@ -67,12 +79,18 @@ export default function getPluralRules(
       return canonicalizeLocaleList(locales).filter(findLocale)
     }
 
-    constructor(locales, opt = {}) {
-      this._locale = resolveLocale(locales)
-      this._select = getSelector(this._locale)
-      this._range = getRangeSelector(this._locale)
-      this._type = getType(opt.type)
-      this._nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
+    #locale
+    #range
+    #select
+    #type
+    #nf
+
+    constructor(locales = [], opt = {}) {
+      this.#locale = resolveLocale(locales)
+      this.#select = getSelector(this.#locale)
+      this.#range = getRangeSelector(this.#locale)
+      this.#type = getType(opt)
+      this.#nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
     }
 
     resolvedOptions() {
@@ -83,20 +101,23 @@ export default function getPluralRules(
         minimumSignificantDigits,
         maximumSignificantDigits,
         roundingPriority
-      } = this._nf.resolvedOptions()
+      } = this.#nf.resolvedOptions()
       const opt = {
-        locale: this._locale,
+        locale: this.#locale,
+        type: this.#type,
         minimumIntegerDigits,
         minimumFractionDigits,
-        maximumFractionDigits,
-        pluralCategories: getCategories(this._locale, this._type === 'ordinal'),
-        roundingPriority: roundingPriority || 'auto',
-        type: this._type
+        maximumFractionDigits
       }
       if (typeof minimumSignificantDigits === 'number') {
         opt.minimumSignificantDigits = minimumSignificantDigits
         opt.maximumSignificantDigits = maximumSignificantDigits
       }
+      opt.pluralCategories = getCategories(
+        this.#locale,
+        this.#type === 'ordinal'
+      ).slice(0)
+      opt.roundingPriority = roundingPriority || 'auto'
       return opt
     }
 
@@ -105,21 +126,28 @@ export default function getPluralRules(
         throw new TypeError(`select() called on incompatible ${this}`)
       if (typeof number !== 'number') number = Number(number)
       if (!isFinite(number)) return 'other'
-      const fmt = this._nf.format(Math.abs(number))
-      return this._select(fmt, this._type === 'ordinal')
+      const fmt = this.#nf.format(Math.abs(number))
+      return this.#select(fmt, this.#type === 'ordinal')
     }
 
     selectRange(start, end) {
       if (!(this instanceof PluralRules))
         throw new TypeError(`selectRange() called on incompatible ${this}`)
-      if (typeof start !== 'number') start = Number(start)
-      if (typeof end !== 'number') end = Number(end)
-      if (!isFinite(start) || !isFinite(end) || start > end)
-        throw new RangeError('start and end must be finite, with end >= start')
-      return this._range(this.select(start), this.select(end))
+      if (start === undefined) throw new TypeError('start is undefined')
+      if (end === undefined) throw new TypeError('end is undefined')
+      const start_ = toNumber(start)
+      const end_ = toNumber(end)
+      if (!isFinite(start_)) throw new RangeError('start must be finite')
+      if (!isFinite(end_)) throw new RangeError('end must be finite')
+      return this.#range(this.select(start_), this.select(end_))
     }
   }
 
+  Object.defineProperty(PluralRules.prototype, Symbol.toStringTag, {
+    value: 'Intl.PluralRules',
+    writable: false,
+    configurable: true
+  })
   Object.defineProperty(PluralRules, 'prototype', { writable: false })
 
   return PluralRules

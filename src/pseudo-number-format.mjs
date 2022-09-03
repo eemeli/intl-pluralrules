@@ -1,4 +1,10 @@
 export default class PseudoNumberFormat {
+  #minID
+  #minFD
+  #maxFD
+  #minSD
+  #maxSD
+
   constructor(
     lc, // locale is ignored; always use 'en-US' in format()
     {
@@ -9,43 +15,43 @@ export default class PseudoNumberFormat {
       maximumSignificantDigits: maxSD
     } = {}
   ) {
-    this._minID = typeof minID === 'number' ? minID : 1
-    this._minFD = typeof minFD === 'number' ? minFD : 0
-    this._maxFD = typeof maxFD === 'number' ? maxFD : Math.max(this._minFD, 3)
+    this.#minID = typeof minID === 'number' ? minID : 1
+    this.#minFD = typeof minFD === 'number' ? minFD : 0
+    this.#maxFD = typeof maxFD === 'number' ? maxFD : Math.max(this.#minFD, 3)
     if (typeof minSD === 'number' || typeof maxSD === 'number') {
-      this._minSD = typeof minSD === 'number' ? minSD : 1
-      this._maxSD = typeof maxSD === 'number' ? maxSD : 21
+      this.#minSD = typeof minSD === 'number' ? minSD : 1
+      this.#maxSD = typeof maxSD === 'number' ? maxSD : 21
     }
   }
 
   resolvedOptions() {
     const opt = {
-      minimumIntegerDigits: this._minID,
-      minimumFractionDigits: this._minFD,
-      maximumFractionDigits: this._maxFD
+      minimumIntegerDigits: this.#minID,
+      minimumFractionDigits: this.#minFD,
+      maximumFractionDigits: this.#maxFD
     }
-    if (typeof this._minSD === 'number') {
-      opt.minimumSignificantDigits = this._minSD
-      opt.maximumSignificantDigits = this._maxSD
+    if (typeof this.#minSD === 'number') {
+      opt.minimumSignificantDigits = this.#minSD
+      opt.maximumSignificantDigits = this.#maxSD
     }
     Object.defineProperty(opt, 'locale', { get: getDefaultLocale })
     return opt
   }
 
   format(n) {
-    if (this._minSD) {
+    if (this.#minSD) {
       const raw = String(n)
       let prec = 0
       for (let i = 0; i < raw.length; ++i) {
         const c = raw[i]
         if (c >= '0' && c <= '9') ++prec
       }
-      if (prec < this._minSD) return n.toPrecision(this._minSD)
-      if (prec > this._maxSD) return n.toPrecision(this._maxSD)
+      if (prec < this.#minSD) return n.toPrecision(this.#minSD)
+      if (prec > this.#maxSD) return n.toPrecision(this.#maxSD)
       return raw
     }
-    if (this._minFD > 0) return n.toFixed(this._minFD)
-    if (this._maxFD === 0) return n.toFixed(0)
+    if (this.#minFD > 0) return n.toFixed(this.#minFD)
+    if (this.#maxFD === 0) return n.toFixed(0)
     return String(n)
   }
 }
