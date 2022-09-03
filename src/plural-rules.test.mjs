@@ -250,21 +250,17 @@ describe('With PseudoNumberFormat', () => {
     })
     test('should use navigator.language as fallback', () => {
       const Intl_ = global.Intl
-      const spy = jest.spyOn(navigator, 'language', 'get')
+      const navigator_ = global.navigator
       try {
         delete global.Intl
-        spy.mockReturnValue('fi-FI')
-        const p0 = new PluralRules()
-        const opt0 = p0.resolvedOptions()
-        expect(opt0.locale).toMatch(/^fi\b/)
-
-        spy.mockReturnValue(undefined)
-        const p1 = new PluralRules()
-        const opt1 = p1.resolvedOptions()
-        expect(opt1.locale).toMatch(/^en\b/)
+        delete global.navigator
+        global.navigator = { language: 'fi-FI' }
+        const pr = new PluralRules()
+        const opt = pr.resolvedOptions()
+        expect(opt.locale).toMatch(/^fi\b/)
       } finally {
         global.Intl = Intl_
-        spy.mockRestore()
+        global.navigator = navigator_
       }
     })
     test('should use "en-US" as ultimate fallback', () => {
@@ -273,9 +269,14 @@ describe('With PseudoNumberFormat', () => {
       try {
         delete global.Intl
         delete global.navigator
-        const p2 = new PluralRules()
-        const opt2 = p2.resolvedOptions()
-        expect(opt2.locale).toMatch(/^en\b/)
+        const pr0 = new PluralRules()
+        const opt0 = pr0.resolvedOptions()
+        expect(opt0.locale).toMatch(/^en\b/)
+
+        global.navigator = { language: undefined }
+        const pr1 = new PluralRules()
+        const opt1 = pr1.resolvedOptions()
+        expect(opt1.locale).toMatch(/^en\b/)
       } finally {
         global.Intl = Intl_
         global.navigator = navigator_
