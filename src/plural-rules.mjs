@@ -16,7 +16,7 @@ const NumberFormat =
   (typeof Intl === 'object' && Intl.NumberFormat) || PseudoNumberFormat
 
 // make-plural exports are cast with safe-identifier to be valid JS identifiers
-const id = lc => (lc === 'in' ? '_in' : lc === 'pt-PT' ? 'pt_PT' : lc)
+const id = lc => (lc === 'pt-PT' ? 'pt_PT' : lc)
 
 const getSelector = lc => Plurals[id(lc)]
 const getCategories = (lc, ord) =>

@@ -1,7 +1,3 @@
-// does not check for duplicate subtags
-const isStructurallyValidLanguageTag = locale =>
-  locale.split('-').every(subtag => /[a-z0-9]+/i.test(subtag))
-
 const canonicalizeLocaleList = locales => {
   if (!locales) return []
   if (!Array.isArray(locales)) locales = [locales]
@@ -16,23 +12,25 @@ const canonicalizeLocaleList = locales => {
       const msg = `Locales should be strings, ${JSON.stringify(tag)} isn't.`
       throw new TypeError(msg)
     }
-    if (tag[0] === '*') continue
-    if (!isStructurallyValidLanguageTag(tag)) {
+
+    const parts = tag.split('-')
+
+    // does not check for duplicate subtags
+    if (!parts.every(subtag => /[a-z0-9]+/i.test(subtag))) {
       const strTag = JSON.stringify(tag)
       const msg = `The locale ${strTag} is not a structurally valid BCP 47 language tag.`
       throw new RangeError(msg)
     }
-    res[tag] = true
+
+    // always use lower case for primary language subtag
+    let lc = parts[0].toLowerCase()
+    // replace deprecated codes for Indonesian, Hebrew & Yiddish
+    parts[0] = { in: 'id', iw: 'he', ji: 'yi' }[lc] ?? lc
+
+    res[parts.join('-')] = true
   }
   return Object.keys(res)
 }
-
-const defaultLocale = () =>
-  /* istanbul ignore next */
-  (typeof navigator !== 'undefined' &&
-    navigator &&
-    (navigator.userLanguage || navigator.language)) ||
-  'en-US'
 
 const getType = type => {
   if (!type) return 'cardinal'
@@ -60,7 +58,8 @@ export default function getPluralRules(
       const lc = findLocale(canonicalLocales[i])
       if (lc) return lc
     }
-    return findLocale(defaultLocale())
+    const lc = new NumberFormat().resolvedOptions().locale
+    return findLocale(lc)
   }
 
   class PluralRules {
