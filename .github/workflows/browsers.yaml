@@ -16,6 +16,7 @@ jobs:
         with:
           username:  ${{ secrets.BROWSERSTACK_USERNAME }}
           access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          project-name: intl-pluralrules
 
       - name: BrowserStackLocal Start
         uses: browserstack/github-actions/setup-local@master
@@ -23,13 +24,13 @@ jobs:
           local-testing: start
           local-identifier: random
 
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with: { node-version: 16.x }
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with: { node-version: 16 }
       - run: npm ci
       - run: python -m http.server 8000 &
 
-      - run: npm run test:ie11
+      - run: npm run test:browsers
 
       - name: BrowserStackLocal Stop
         uses: browserstack/github-actions/setup-local@master

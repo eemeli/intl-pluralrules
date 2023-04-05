@@ -6,14 +6,13 @@ const localIdentifier = process.env.BROWSERSTACK_LOCAL_IDENTIFIER
 
 const server = `http://${username}:${accessKey}@hub.browserstack.com/wd/hub`
 
+const [os, osVersion] = (process.env.OS ?? 'Windows:10').split(':')
+const [browserName, browserVersion] = process.env.BROWSER.split(':')
+
 const capabilities = {
-  'bstack:options': {
-    local: 'true',
-    os: 'Windows',
-    osVersion: '10'
-  },
-  browserName: 'IE',
-  browserVersion: '11.0'
+  'bstack:options': { local: 'true', os, osVersion },
+  browserName,
+  browserVersion
 }
 
 if (localIdentifier)
