@@ -12,14 +12,16 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [14, 16, 18, latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - if: matrix.node-version == 14
+        run: npm install --global npm@7
       - run: npm ci
       - run: npm run build
       - run: npm test
@@ -32,9 +34,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with: { submodules: true }
-      - uses: actions/setup-node@v1
-        with: { node-version: 18.x }
+      - uses: actions/setup-node@v3
+        with: { node-version: 18 }
       - run: npm ci
       - run: npm run test262
