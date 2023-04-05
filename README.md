@@ -5,7 +5,7 @@ including the `selectRange(start, end)` method introduced in [Intl.NumberFormat 
 Also useful if you need proper support for [`minimumFractionDigits`],
 which are only supported in Chrome 77 & later.
 
-For a polyfill without `selectRange()`, please use `intl-pluralrules@1`.
+For a polyfill without `selectRange()` and with IE 11 support, please use `intl-pluralrules@1`.
 
 [intl.pluralrules]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules
 [intl.numberformat v3]: https://github.com/tc39/proposal-intl-numberformat-v3/

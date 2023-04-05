@@ -71,8 +71,9 @@
     "pretest262": "rollup -c test/rollup.test262.js",
     "test262": "test262-harness --error-for-failures --features-exclude cross-realm --prelude test/dist/test262-prelude.js 'test262/test/intl402/PluralRules/**/*.js'",
     "pretest:browsers": "npx rollup -c test/rollup.browser.js",
-    "test:browsers": "npm run test:edge && npm run test:safari",
+    "test:browsers": "npm run test:edge && npm run test:firefox && npm run test:safari",
     "test:edge": "BROWSER=Edge:110 mocha-selenium-bridge --driver ./test/browserstack-driver.js http://localhost:8000/test/browser-test.html",
+    "test:firefox": "BROWSER=Firefox:110 mocha-selenium-bridge --driver ./test/browserstack-driver.js http://localhost:8000/test/browser-test.html",
     "test:safari": "OS='OS X:Big Sur' BROWSER=Safari:14.1 mocha-selenium-bridge --driver ./test/browserstack-driver.js http://localhost:8000/test/browser-test.html"
   }
 }
