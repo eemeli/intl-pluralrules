@@ -37,7 +37,7 @@
     "./factory.js": "./factory.mjs"
   },
   "react-native": {
-    "./factory": "./factory.js"
+    "./factory.js": "./factory.js"
   },
   "browserslist": [
     "> 0.25%, not dead"
