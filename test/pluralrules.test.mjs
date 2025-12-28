@@ -1,6 +1,7 @@
-import { expect } from 'chai'
+import { describe, expect, it } from 'vitest'
+import PluralRules from '../src/plural-rules.mjs'
 
-export function suite(PluralRules) {
+describe('PluralRules', () => {
   it('should exist', () => {
     expect(PluralRules).to.be.instanceOf(Function)
   })
@@ -215,4 +216,4 @@ export function suite(PluralRules) {
       expect(() => p.selectRange(BigInt(2), 1)).to.throw(TypeError)
     })
   })
-}
+})
