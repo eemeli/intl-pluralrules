@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "erasableSyntaxOnly": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
+    "module": "node20",
+    "moduleDetection": "force",
+    "moduleResolution": "nodenext",
+    "noUncheckedSideEffectImports": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "dist",
+    "rewriteRelativeImportExtensions": true,
+    "rootDir": "src",
+    "strict": true,
+    "stripInternal": true,
+    "target": "es2023",
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}

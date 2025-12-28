@@ -1,6 +1,6 @@
 // The simplest usage pattern. The right thing in most cases.
 
-import '../../polyfill'
+import '../../src/polyfill.ts'
 
 const one = new Intl.PluralRules('en').select(1)
 const other = new Intl.PluralRules('en', {

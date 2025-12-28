@@ -6,7 +6,7 @@
 import { en, fr } from 'make-plural/cardinals'
 import { en as enCat, fr as frCat } from 'make-plural/pluralCategories'
 import { en as enRange, fr as frRange } from 'make-plural/ranges'
-import getPluralRules from '../../factory'
+import getPluralRules from '../../src/factory.ts'
 
 const sel = { en, fr }
 const getSelector = lc => sel[lc]
