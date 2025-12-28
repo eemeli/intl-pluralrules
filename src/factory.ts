@@ -67,6 +67,7 @@ export interface PluralRulesOptions {
   maximumFractionDigits?: number | undefined
   minimumSignificantDigits?: number | undefined
   maximumSignificantDigits?: number | undefined
+  roundingPriority?: 'auto' | 'morePrecision' | 'lessPrecision'
 }
 
 export interface ResolvedPluralRulesOptions {
@@ -78,6 +79,7 @@ export interface ResolvedPluralRulesOptions {
   maximumFractionDigits?: number
   minimumSignificantDigits?: number
   maximumSignificantDigits?: number
+  roundingPriority: 'auto' | 'morePrecision' | 'lessPrecision'
 }
 
 export interface PluralRules {
@@ -165,7 +167,7 @@ export default function getPluralRules(
           : { minimumFractionDigits, maximumFractionDigits },
         {
           pluralCategories: getCategories(locale, type === 'ordinal').slice(0),
-          roundingPriority
+          roundingPriority: roundingPriority ?? 'auto'
         }
       )
     }
