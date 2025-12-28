@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
       - name: BrowserStack Env Setup
         uses: browserstack/github-actions/setup-env@master
         with:
@@ -24,15 +26,12 @@ jobs:
           local-testing: start
           local-identifier: random
 
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with: { node-version: 16 }
       - run: npm ci
-      - run: python -m http.server 8000 &
-
-      - run: npm run test:browsers
+      - run: npm install --no-save @vitest/browser-playwright@4
+      - run: npx vitest run --config=.github/vitest.browserstack.config.js
 
       - name: BrowserStackLocal Stop
         uses: browserstack/github-actions/setup-local@master
+        if: always()
         with:
           local-testing: stop
