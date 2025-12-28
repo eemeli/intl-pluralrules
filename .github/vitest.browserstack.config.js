@@ -44,7 +44,7 @@ export default defineConfig({
           browser: 'chromium',
           provider: bsProvider({
             browser: 'playwright-firefox',
-            browser_version: '110'
+            browser_version: '111'
           })
         },
         {
