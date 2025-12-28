@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import PluralRules from '../src/plural-rules.mjs'
+import PluralRules from '../src/plural-rules.ts'
 
 describe('PluralRules', () => {
   it('should exist', () => {

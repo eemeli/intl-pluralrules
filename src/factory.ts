@@ -1,9 +1,11 @@
-const canonicalizeLocaleList = locales => {
+function canonicalizeLocaleList(
+  locales: string | readonly string[] | undefined
+) {
   if (!locales) return []
-  if (!Array.isArray(locales)) locales = [locales]
-  const res = {}
-  for (let i = 0; i < locales.length; ++i) {
-    let tag = locales[i]
+  const locales_ = Array.isArray(locales) ? locales : [locales]
+  const res: Record<string, true> = {}
+  for (let i = 0; i < locales_.length; ++i) {
+    let tag = locales_[i]
     if (tag && typeof tag === 'object') tag = String(tag)
     if (typeof tag !== 'string') {
       // Requiring tag to be a String or Object means that the Number value
@@ -32,14 +34,16 @@ const canonicalizeLocaleList = locales => {
   return Object.keys(res)
 }
 
-function getType(opt) {
-  const type = Object.prototype.hasOwnProperty.call(opt, 'type') && opt.type
+function getType(opt: unknown) {
+  const type =
+    // @ts-expect-error
+    opt && Object.prototype.hasOwnProperty.call(opt, 'type') && opt.type
   if (!type) return 'cardinal'
   if (type === 'cardinal' || type === 'ordinal') return type
   throw new RangeError('Not a valid plural type: ' + JSON.stringify(type))
 }
 
-function toNumber(value) {
+function toNumber(value: unknown) {
   switch (typeof value) {
     case 'number':
       return value
@@ -50,13 +54,57 @@ function toNumber(value) {
   }
 }
 
+export type Category = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other'
+export type Selector = (n: number | string, ord?: boolean) => Category
+export type RangeSelector = (start: Category, end: Category) => Category
+export type PluralRuleType = 'cardinal' | 'ordinal'
+
+export interface PluralRulesOptions {
+  localeMatcher?: 'lookup' | 'best fit' | undefined
+  type?: PluralRuleType | undefined
+  minimumIntegerDigits?: number | undefined
+  minimumFractionDigits?: number | undefined
+  maximumFractionDigits?: number | undefined
+  minimumSignificantDigits?: number | undefined
+  maximumSignificantDigits?: number | undefined
+}
+
+export interface ResolvedPluralRulesOptions {
+  locale: string
+  pluralCategories: Category[]
+  type: PluralRuleType
+  minimumIntegerDigits: number
+  minimumFractionDigits?: number
+  maximumFractionDigits?: number
+  minimumSignificantDigits?: number
+  maximumSignificantDigits?: number
+}
+
+export interface PluralRules {
+  resolvedOptions(): ResolvedPluralRulesOptions
+  select(n: number | string): Category
+  selectRange(start: number | string, end: number | string): Category
+}
+
+export interface PluralRulesConstructor {
+  new (
+    locales?: string | readonly string[],
+    options?: PluralRulesOptions
+  ): PluralRules
+  polyfill?: true
+  supportedLocalesOf(
+    locales: string | readonly string[],
+    options?: { localeMatcher?: 'lookup' | 'best fit' }
+  ): string[]
+}
+
 export default function getPluralRules(
-  NumberFormat,
-  getSelector,
-  getCategories,
-  getRangeSelector
-) {
-  const findLocale = locale => {
+  NumberFormat: Intl.NumberFormatConstructor,
+  getSelector: (lc: string) => Selector | undefined,
+  getCategories: (lc: string, ord?: boolean) => Category[],
+  getRangeSelector: (lc: string) => RangeSelector
+): PluralRulesConstructor {
+  const findLocale = (locale: string) => {
     do {
       if (getSelector(locale)) return locale
       locale = locale.replace(/-?[^-]*$/, '')
@@ -64,36 +112,42 @@ export default function getPluralRules(
     return null
   }
 
-  const resolveLocale = locales => {
+  const resolveLocale = (locales: string | readonly string[] | undefined) => {
     const canonicalLocales = canonicalizeLocaleList(locales)
     for (let i = 0; i < canonicalLocales.length; ++i) {
       const lc = findLocale(canonicalLocales[i])
       if (lc) return lc
     }
+    // fallback to default locale
     const lc = new NumberFormat().resolvedOptions().locale
-    return findLocale(lc)
+    return findLocale(lc)!
   }
 
   class PluralRules {
-    static supportedLocalesOf(locales) {
+    static supportedLocalesOf(locales: string | string[]) {
       return canonicalizeLocaleList(locales).filter(findLocale)
     }
 
-    #locale
-    #range
-    #select
-    #type
-    #nf
+    #locale: string
+    #range: RangeSelector
+    #select: Selector
+    #type: 'cardinal' | 'ordinal'
+    #nf: Intl.NumberFormat
 
-    constructor(locales = [], opt = {}) {
+    constructor(
+      locales?: string | readonly string[] | undefined,
+      opt?: PluralRulesOptions | undefined
+    ) {
       this.#locale = resolveLocale(locales)
-      this.#select = getSelector(this.#locale)
+      this.#select = getSelector(this.#locale)!
+      if (!this.#select)
+        throw new Error(`Selector not found for locale: ${this.#locale}`)
       this.#range = getRangeSelector(this.#locale)
       this.#type = getType(opt)
       this.#nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
     }
 
-    resolvedOptions() {
+    resolvedOptions(): ResolvedPluralRulesOptions {
       const {
         minimumIntegerDigits,
         minimumFractionDigits,
@@ -102,26 +156,21 @@ export default function getPluralRules(
         maximumSignificantDigits,
         roundingPriority
       } = this.#nf.resolvedOptions()
-      const opt = {
-        locale: this.#locale,
-        type: this.#type,
-        minimumIntegerDigits,
-        minimumFractionDigits,
-        maximumFractionDigits
-      }
-      if (typeof minimumSignificantDigits === 'number') {
-        opt.minimumSignificantDigits = minimumSignificantDigits
-        opt.maximumSignificantDigits = maximumSignificantDigits
-      }
-      opt.pluralCategories = getCategories(
-        this.#locale,
-        this.#type === 'ordinal'
-      ).slice(0)
-      opt.roundingPriority = roundingPriority || 'auto'
-      return opt
+      const locale = this.#locale
+      const type = this.#type
+      return Object.assign(
+        { locale, type, minimumIntegerDigits },
+        typeof minimumSignificantDigits === 'number'
+          ? { minimumSignificantDigits, maximumSignificantDigits }
+          : { minimumFractionDigits, maximumFractionDigits },
+        {
+          pluralCategories: getCategories(locale, type === 'ordinal').slice(0),
+          roundingPriority
+        }
+      )
     }
 
-    select(number) {
+    select(number: number | string): Category {
       if (!(this instanceof PluralRules))
         throw new TypeError(`select() called on incompatible ${this}`)
       if (typeof number !== 'number') number = Number(number)
@@ -130,7 +179,7 @@ export default function getPluralRules(
       return this.#select(fmt, this.#type === 'ordinal')
     }
 
-    selectRange(start, end) {
+    selectRange(start: number | string, end: number | string): Category {
       if (!(this instanceof PluralRules))
         throw new TypeError(`selectRange() called on incompatible ${this}`)
       if (start === undefined) throw new TypeError('start is undefined')

@@ -14,30 +14,15 @@
   "homepage": "https://github.com/eemeli/intl-pluralrules#readme",
   "repository": "eemeli/intl-pluralrules",
   "files": [
-    "factory.*",
-    "plural-rules.*",
-    "polyfill.*"
+    "dist/"
   ],
-  "type": "commonjs",
-  "main": "./polyfill.js",
+  "type": "module",
   "exports": {
-    ".": "./polyfill.js",
-    "./factory": [
-      {
-        "import": "./factory.mjs",
-        "require": "./factory.js"
-      },
-      "./factory.js"
-    ],
-    "./plural-rules": "./plural-rules.js",
-    "./polyfill": "./polyfill.js",
+    ".": "./dist/polyfill.js",
+    "./factory": "./dist/factory.js",
+    "./plural-rules": "./dist/plural-rules.js",
+    "./polyfill": "./dist/polyfill.js",
     "./package.json": "./package.json"
-  },
-  "browser": {
-    "./factory.js": "./factory.mjs"
-  },
-  "react-native": {
-    "./factory.js": "./factory.js"
   },
   "browserslist": [
     "> 0.25%, not dead"
@@ -59,13 +44,14 @@
     "rollup": "^2.26.5",
     "rollup-plugin-terser": "^7.0.0",
     "test262-harness": "^10.0.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.16"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc",
     "clean": "git clean -fdxe node_modules -e examples/node_modules",
     "prepublishOnly": "npm test && npm run build",
-    "test": "vitest run --coverage",
+    "test": "vitest run test/ --coverage",
     "pretest262": "rollup -c test/rollup.test262.js",
     "test262": "test262-harness --error-for-failures --features-exclude cross-realm --prelude test/dist/test262-prelude.js 'test262/test/intl402/PluralRules/**/*.js'"
   }
