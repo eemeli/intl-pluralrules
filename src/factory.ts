@@ -135,8 +135,8 @@ export default function getPluralRules(
     #nf: Intl.NumberFormat
 
     constructor(
-      locales?: string | readonly string[] | undefined,
-      opt?: PluralRulesOptions | undefined
+      locales: string | readonly string[] | undefined = undefined,
+      opt: PluralRulesOptions | undefined = undefined
     ) {
       this.#locale = resolveLocale(locales)
       this.#select = getSelector(this.#locale)!
