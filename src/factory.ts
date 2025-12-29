@@ -34,15 +34,6 @@ function canonicalizeLocaleList(
   return Object.keys(res)
 }
 
-function getType(opt: unknown) {
-  const type =
-    // @ts-expect-error
-    opt && Object.prototype.hasOwnProperty.call(opt, 'type') && opt.type
-  if (!type) return 'cardinal'
-  if (type === 'cardinal' || type === 'ordinal') return type
-  throw new RangeError('Not a valid plural type: ' + JSON.stringify(type))
-}
-
 function toNumber(value: unknown) {
   switch (typeof value) {
     case 'number':
@@ -59,18 +50,8 @@ export type Selector = (n: number | string, ord?: boolean) => Category
 export type RangeSelector = (start: Category, end: Category) => Category
 export type PluralRuleType = 'cardinal' | 'ordinal'
 
-export interface PluralRulesOptions {
-  localeMatcher?: 'lookup' | 'best fit' | undefined
-  type?: PluralRuleType | undefined
-  minimumIntegerDigits?: number | undefined
-  minimumFractionDigits?: number | undefined
-  maximumFractionDigits?: number | undefined
-  minimumSignificantDigits?: number | undefined
-  maximumSignificantDigits?: number | undefined
-  roundingPriority?: 'auto' | 'morePrecision' | 'lessPrecision'
-}
-
 export interface ResolvedPluralRulesOptions {
+  compactDisplay?: 'short' | 'long'
   locale: string
   pluralCategories: Category[]
   type: PluralRuleType
@@ -79,7 +60,117 @@ export interface ResolvedPluralRulesOptions {
   maximumFractionDigits?: number
   minimumSignificantDigits?: number
   maximumSignificantDigits?: number
+  notation: 'standard' | 'scientific' | 'engineering' | 'compact'
+  roundingIncrement:
+    | 1
+    | 2
+    | 5
+    | 10
+    | 20
+    | 25
+    | 50
+    | 100
+    | 200
+    | 250
+    | 500
+    | 1000
+    | 2000
+    | 2500
+    | 5000
+  roundingMode:
+    | 'ceil'
+    | 'floor'
+    | 'expand'
+    | 'trunc'
+    | 'halfCeil'
+    | 'halfFloor'
+    | 'halfExpand'
+    | 'halfTrunc'
+    | 'halfEven'
   roundingPriority: 'auto' | 'morePrecision' | 'lessPrecision'
+  trailingZeroDisplay: 'auto' | 'stripIfInteger'
+}
+
+export type PluralRulesOptions = Partial<
+  Omit<ResolvedPluralRulesOptions, 'pluralCategories'>
+>
+
+function readOptions(opt: PluralRulesOptions | undefined) {
+  if (!opt)
+    return {
+      type: 'cardinal',
+      compactDisplay: 'short',
+      nfOpt: undefined
+    } as const
+
+  const get = <T extends string>(name: string, values: T[]): T => {
+    const val = Object.prototype.hasOwnProperty.call(opt, name)
+      ? (opt as Record<string, unknown>)[name]
+      : undefined
+    if (val === undefined) return values[0]
+    if (typeof val === 'symbol')
+      throw new TypeError(`Unsupported symbol as ${name} option value`)
+    const strval = String(val) as T
+    if (!values || values.includes(strval)) return strval
+    throw new RangeError(`Unsupported ${name} option value: ${strval}`)
+  }
+
+  const localeMatcher = get('localeMatcher', ['best fit', 'lookup'])
+  const type = get('type', ['cardinal', 'ordinal'])
+  const notation = get('notation', [
+    'standard',
+    'scientific',
+    'engineering',
+    'compact'
+  ])
+  const compactDisplay = get('compactDisplay', ['short', 'long'])
+  const {
+    minimumIntegerDigits,
+    minimumFractionDigits,
+    maximumFractionDigits,
+    minimumSignificantDigits,
+    maximumSignificantDigits,
+    roundingIncrement
+  } = opt
+  const roundingMode = get('roundingMode', [
+    'halfExpand',
+    'ceil',
+    'floor',
+    'expand',
+    'trunc',
+    'halfCeil',
+    'halfFloor',
+    'halfTrunc',
+    'halfEven'
+  ])
+  const roundingPriority = get('roundingPriority', [
+    'auto',
+    'morePrecision',
+    'lessPrecision'
+  ])
+  const trailingZeroDisplay = get('trailingZeroDisplay', [
+    'auto',
+    'stripIfInteger'
+  ])
+
+  return {
+    type,
+    compactDisplay,
+    nfOpt: {
+      localeMatcher,
+      notation,
+      compactDisplay: 'short',
+      minimumIntegerDigits,
+      minimumFractionDigits,
+      maximumFractionDigits,
+      minimumSignificantDigits,
+      maximumSignificantDigits,
+      roundingIncrement,
+      roundingMode,
+      roundingPriority,
+      trailingZeroDisplay
+    }
+  } as const
 }
 
 export interface PluralRules {
@@ -134,6 +225,7 @@ export default function getPluralRules(
     #range: RangeSelector
     #select: Selector
     #type: 'cardinal' | 'ordinal'
+    #compactDisplay: 'short' | 'long'
     #nf: Intl.NumberFormat
 
     constructor(
@@ -145,8 +237,10 @@ export default function getPluralRules(
       if (!this.#select)
         throw new Error(`Selector not found for locale: ${this.#locale}`)
       this.#range = getRangeSelector(this.#locale)
-      this.#type = getType(opt)
-      this.#nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
+      const res = readOptions(opt)
+      this.#nf = new NumberFormat('en', res.nfOpt) // make-plural expects latin digits with . decimal separator
+      this.#type = res.type
+      this.#compactDisplay = res.compactDisplay
     }
 
     resolvedOptions(): ResolvedPluralRulesOptions {
@@ -156,18 +250,27 @@ export default function getPluralRules(
         maximumFractionDigits,
         minimumSignificantDigits,
         maximumSignificantDigits,
-        roundingPriority
+        notation,
+        roundingIncrement,
+        roundingMode,
+        roundingPriority,
+        trailingZeroDisplay
       } = this.#nf.resolvedOptions()
       const locale = this.#locale
       const type = this.#type
       return Object.assign(
-        { locale, type, minimumIntegerDigits },
+        { locale, type, notation },
+        notation === 'compact' && { compactDisplay: this.#compactDisplay },
+        { minimumIntegerDigits },
         typeof minimumSignificantDigits === 'number'
           ? { minimumSignificantDigits, maximumSignificantDigits }
           : { minimumFractionDigits, maximumFractionDigits },
         {
           pluralCategories: getCategories(locale, type === 'ordinal').slice(0),
-          roundingPriority: roundingPriority ?? 'auto'
+          roundingIncrement: roundingIncrement ?? 1,
+          roundingMode: roundingMode ?? 'halfExpand',
+          roundingPriority: roundingPriority ?? 'auto',
+          trailingZeroDisplay: trailingZeroDisplay ?? 'auto'
         }
       )
     }
@@ -177,7 +280,10 @@ export default function getPluralRules(
         throw new TypeError(`select() called on incompatible ${this}`)
       if (typeof number !== 'number') number = Number(number)
       if (!isFinite(number)) return 'other'
-      const fmt = this.#nf.format(Math.abs(number))
+      let fmt = ''
+      for (const part of this.#nf.formatToParts(Math.abs(number))) {
+        fmt += part.value
+      }
       return this.#select(fmt, this.#type === 'ordinal')
     }
 
