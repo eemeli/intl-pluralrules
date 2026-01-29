@@ -34,15 +34,6 @@ function canonicalizeLocaleList(
   return Object.keys(res)
 }
 
-function getType(opt: unknown) {
-  const type =
-    // @ts-expect-error
-    opt && Object.prototype.hasOwnProperty.call(opt, 'type') && opt.type
-  if (!type) return 'cardinal'
-  if (type === 'cardinal' || type === 'ordinal') return type
-  throw new RangeError('Not a valid plural type: ' + JSON.stringify(type))
-}
-
 function toNumber(value: unknown) {
   switch (typeof value) {
     case 'number':
@@ -55,22 +46,16 @@ function toNumber(value: unknown) {
 }
 
 export type Category = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other'
-export type Selector = (n: number | string, ord?: boolean) => Category
+export type Selector = (
+  n: number | string,
+  ord?: boolean,
+  compact?: number
+) => Category
 export type RangeSelector = (start: Category, end: Category) => Category
 export type PluralRuleType = 'cardinal' | 'ordinal'
 
-export interface PluralRulesOptions {
-  localeMatcher?: 'lookup' | 'best fit' | undefined
-  type?: PluralRuleType | undefined
-  minimumIntegerDigits?: number | undefined
-  minimumFractionDigits?: number | undefined
-  maximumFractionDigits?: number | undefined
-  minimumSignificantDigits?: number | undefined
-  maximumSignificantDigits?: number | undefined
-  roundingPriority?: 'auto' | 'morePrecision' | 'lessPrecision'
-}
-
 export interface ResolvedPluralRulesOptions {
+  compactDisplay?: 'short' | 'long'
   locale: string
   pluralCategories: Category[]
   type: PluralRuleType
@@ -79,8 +64,115 @@ export interface ResolvedPluralRulesOptions {
   maximumFractionDigits?: number
   minimumSignificantDigits?: number
   maximumSignificantDigits?: number
+  notation: 'standard' | 'scientific' | 'engineering' | 'compact'
+  roundingIncrement:
+    | 1
+    | 2
+    | 5
+    | 10
+    | 20
+    | 25
+    | 50
+    | 100
+    | 200
+    | 250
+    | 500
+    | 1000
+    | 2000
+    | 2500
+    | 5000
+  roundingMode:
+    | 'ceil'
+    | 'floor'
+    | 'expand'
+    | 'trunc'
+    | 'halfCeil'
+    | 'halfFloor'
+    | 'halfExpand'
+    | 'halfTrunc'
+    | 'halfEven'
   roundingPriority: 'auto' | 'morePrecision' | 'lessPrecision'
+  trailingZeroDisplay: 'auto' | 'stripIfInteger'
 }
+
+export type PluralRulesOptions = Partial<
+  Omit<ResolvedPluralRulesOptions, 'pluralCategories'>
+>
+
+function readOptions(opt: PluralRulesOptions | undefined) {
+  const get = <T extends string>(name: string, values: T[]): T => {
+    if (!opt) return values[0]
+    const val = Object.prototype.hasOwnProperty.call(opt, name)
+      ? (opt as Record<string, unknown>)[name]
+      : undefined
+    if (val === undefined) return values[0]
+    if (typeof val === 'symbol')
+      throw new TypeError(`Unsupported symbol as ${name} option value`)
+    const strval = String(val) as T
+    if (!values || values.includes(strval)) return strval
+    throw new RangeError(`Unsupported ${name} option value: ${strval}`)
+  }
+
+  const localeMatcher = get('localeMatcher', ['best fit', 'lookup'])
+  const type = get('type', ['cardinal', 'ordinal'])
+  const notation = get('notation', [
+    'standard',
+    'scientific',
+    'engineering',
+    'compact'
+  ])
+  const compactDisplay = get('compactDisplay', ['short', 'long'])
+  const {
+    minimumIntegerDigits,
+    minimumFractionDigits,
+    maximumFractionDigits,
+    minimumSignificantDigits,
+    maximumSignificantDigits,
+    roundingIncrement
+  } = opt ?? {}
+  const roundingMode = get('roundingMode', [
+    'halfExpand',
+    'ceil',
+    'floor',
+    'expand',
+    'trunc',
+    'halfCeil',
+    'halfFloor',
+    'halfTrunc',
+    'halfEven'
+  ])
+  const roundingPriority = get('roundingPriority', [
+    'auto',
+    'morePrecision',
+    'lessPrecision'
+  ])
+  const trailingZeroDisplay = get('trailingZeroDisplay', [
+    'auto',
+    'stripIfInteger'
+  ])
+
+  return {
+    prOpt:
+      notation === 'compact'
+        ? { type, notation, compactDisplay }
+        : { type, notation },
+    nfOpt: {
+      localeMatcher,
+      minimumIntegerDigits,
+      minimumFractionDigits,
+      maximumFractionDigits,
+      minimumSignificantDigits,
+      maximumSignificantDigits,
+      roundingIncrement,
+      roundingMode,
+      roundingPriority,
+      trailingZeroDisplay,
+      useGrouping: false
+    }
+  } as const
+}
+
+const compactExponents: Record<string, number> = { K: 3, M: 6, B: 9, T: 12 }
 
 export interface PluralRules {
   resolvedOptions(): ResolvedPluralRulesOptions
@@ -133,8 +225,14 @@ export default function getPluralRules(
     #locale: string
     #range: RangeSelector
     #select: Selector
-    #type: 'cardinal' | 'ordinal'
+    #isOrdinal: boolean
+    #opt: {
+      compactDisplay?: 'short' | 'long'
+      notation: 'standard' | 'scientific' | 'engineering' | 'compact'
+      type: 'ordinal' | 'cardinal'
+    }
     #nf: Intl.NumberFormat
+    #nfCompact?: Intl.NumberFormat
 
     constructor(
       locales: string | readonly string[] | undefined = undefined,
@@ -145,8 +243,17 @@ export default function getPluralRules(
       if (!this.#select)
         throw new Error(`Selector not found for locale: ${this.#locale}`)
       this.#range = getRangeSelector(this.#locale)
-      this.#type = getType(opt)
-      this.#nf = new NumberFormat('en', opt) // make-plural expects latin digits with . decimal separator
+      const { prOpt, nfOpt } = readOptions(opt)
+      this.#isOrdinal = prOpt.type === 'ordinal'
+      this.#opt = prOpt
+      this.#nf = new NumberFormat('en', nfOpt) // make-plural expects latin digits with . decimal separator
+      this.#nfCompact =
+        prOpt.notation === 'compact'
+          ? new NumberFormat('en', {
+              ...nfOpt,
+              notation: 'compact'
+            })
+          : undefined
     }
 
     resolvedOptions(): ResolvedPluralRulesOptions {
@@ -156,18 +263,25 @@ export default function getPluralRules(
         maximumFractionDigits,
         minimumSignificantDigits,
         maximumSignificantDigits,
-        roundingPriority
+        roundingIncrement,
+        roundingMode,
+        roundingPriority,
+        trailingZeroDisplay
       } = this.#nf.resolvedOptions()
       const locale = this.#locale
-      const type = this.#type
       return Object.assign(
-        { locale, type, minimumIntegerDigits },
+        { locale },
+        this.#opt,
+        { minimumIntegerDigits },
         typeof minimumSignificantDigits === 'number'
           ? { minimumSignificantDigits, maximumSignificantDigits }
           : { minimumFractionDigits, maximumFractionDigits },
         {
-          pluralCategories: getCategories(locale, type === 'ordinal').slice(0),
-          roundingPriority: roundingPriority ?? 'auto'
+          pluralCategories: getCategories(locale, this.#isOrdinal).slice(0),
+          roundingIncrement: roundingIncrement ?? 1,
+          roundingMode: roundingMode ?? 'halfExpand',
+          roundingPriority: roundingPriority ?? 'auto',
+          trailingZeroDisplay: trailingZeroDisplay ?? 'auto'
         }
       )
     }
@@ -177,8 +291,18 @@ export default function getPluralRules(
         throw new TypeError(`select() called on incompatible ${this}`)
       if (typeof number !== 'number') number = Number(number)
       if (!isFinite(number)) return 'other'
+      let compact = 0
+      if (this.#nfCompact) {
+        for (const part of this.#nfCompact.formatToParts(Math.abs(number))) {
+          if (part.type === 'compact') {
+            compact = compactExponents[part.value]
+            if (!compact)
+              throw new RangeError(`Unsupported compact key: ${part.value}`)
+          }
+        }
+      }
       const fmt = this.#nf.format(Math.abs(number))
-      return this.#select(fmt, this.#type === 'ordinal')
+      return this.#select(fmt, this.#isOrdinal, compact)
     }
 
     selectRange(start: number | string, end: number | string): Category {

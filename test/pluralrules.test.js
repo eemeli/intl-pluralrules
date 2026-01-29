@@ -163,6 +163,24 @@ describe('PluralRules', () => {
       expect(p0.select(10)).to.equal('other')
       expect(p1.select(10)).to.equal('many')
     })
+    it('should work with French millions', () => {
+      var prstandard = new PluralRules('fr', { notation: 'standard' })
+      var prcompact = new PluralRules('fr', { notation: 'compact' })
+      for (var { value, standard, compact } of [
+        { value: 1e6, standard: 'many', compact: 'many' },
+        { value: 1.5e6, standard: 'other', compact: 'many' },
+        { value: 1e-6, standard: 'one', compact: 'one' }
+      ]) {
+        expect(prcompact.select(value)).to.equal(
+          compact,
+          `Compact notation: ${value}`
+        )
+        expect(prstandard.select(value)).to.equal(
+          standard,
+          `Standard notation: ${value}`
+        )
+      }
+    })
   })
 
   describe('#selectRange()', () => {
