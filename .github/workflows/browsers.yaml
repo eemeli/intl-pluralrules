@@ -27,7 +27,7 @@ jobs:
           local-identifier: random
 
       - run: npm ci
-      - run: npm install --no-save @vitest/browser-playwright@4
+      - run: npm install --no-save @vitest/browser-playwright@4.0.18
       - run: npx vitest run --config=.github/vitest.browserstack.config.js
 
       - name: BrowserStackLocal Stop
