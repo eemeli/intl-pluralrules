@@ -17,6 +17,9 @@
     "dist/"
   ],
   "type": "module",
+  "sideEffects": [
+    "./dist/polyfill.js"
+  ],
   "exports": {
     ".": "./dist/polyfill.js",
     "./factory": "./dist/factory.js",
